@@ -35,7 +35,7 @@ export interface ServerToClientEvents {
   otherUserHangup: () => void
 }
 export interface ClientToServerEvents {
-  join: (roomID: string, callback: (socketIds: string[]) => void) => void
+  join: (roomID: string) => void
   answer: (room: string, description: RTCSessionDescription) => void
   ice_candidate: (room: string, data: IIce_candidate) => void
   hangup: (room: string) => void
