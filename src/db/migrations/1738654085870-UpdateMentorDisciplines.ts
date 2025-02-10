@@ -34,7 +34,7 @@ export class UpdateMentorDisciplines1738654085870
             COMMENT ON TYPE DISCIPLINES IS 'All options of disciplines, used in the disciplines column type';
             COMMENT ON COLUMN mentor_disciplines.mentor_id IS 'The UUID of the mentor associated with a specific discipline'; 
             COMMENT ON COLUMN mentor_disciplines.disciplines IS 'The discipline that the mentor specializes in, using the DISCIPLINES enum to ensure valid values';
-            COMMENT ON COLUMN mentor_disciplines.created_at IS 'The mentor-discipline create time';
+            COMMENT ON COLUMN mentor_disciplines.created_at IS 'The mentor_discipline create time';
     `)
   }
 
