@@ -27,7 +27,7 @@ export class UpdateMentorDisciplines1738654085870
                 created_at          TIMESTAMP WITHOUT TIME ZONE     DEFAULT NOW()               NOT NULL,
                 CONSTRAINT fk_mentor_disciplines FOREIGN KEY (mentor_id) REFERENCES mentor(id) ON DELETE CASCADE,
                 PRIMARY KEY(id),
-                UNIQUE(mentor_id, disciplines),
+                UNIQUE(mentor_id, disciplines)
             );
 
             COMMENT ON TABLE mentor_disciplines IS 'The mentor selected disciplines for the profile';
@@ -42,7 +42,7 @@ export class UpdateMentorDisciplines1738654085870
     queryRunner.query(`
           DROP TABLE IF EXISTS mentor_disciplines;
           DROP TYPE IF EXISTS DISCIPLINES;
-          ALTER TABLE mentor ADD COLUMN disciplines;
+          ALTER TABLE mentor ADD COLUMN disciplines JSONB NOT NULL;
     `)
   }
 }
