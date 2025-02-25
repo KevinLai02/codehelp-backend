@@ -1,5 +1,6 @@
 import Joi from "joi"
 import { countryCodes } from "~/utils/country"
+import { MENTOR_DISCIPLINES, MENTOR_SKILLS, MENTOR_TOOLS } from "./types"
 
 export const signUpSchema = Joi.object({
   body: Joi.object().keys({
@@ -21,9 +22,18 @@ export const signUpSchema = Joi.object({
     primaryExpertise: Joi.string().required().max(100),
     secondaryExpertise: Joi.string().required().allow("").max(100),
     tertiaryExpertise: Joi.string().required().allow("").max(100),
-    disciplines: Joi.array().required().min(1),
-    skills: Joi.array().required().min(1),
-    tools: Joi.array().required().min(1),
+    disciplines: Joi.array()
+      .items(Joi.string().valid(...Object.values(MENTOR_DISCIPLINES)))
+      .required()
+      .min(1),
+    skills: Joi.array()
+      .items(Joi.string().valid(...Object.values(MENTOR_SKILLS)))
+      .required()
+      .min(1),
+    tools: Joi.array()
+      .items(Joi.string().valid(...Object.values(MENTOR_TOOLS)))
+      .required()
+      .min(1),
     education: Joi.string().max(50).required(),
   }),
 })

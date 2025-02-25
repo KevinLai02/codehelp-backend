@@ -1,5 +1,6 @@
 import { IMemberModel } from "~/Member/types"
 import { IMentorModel } from "~/Mentor/types"
+import { MENTOR_DISCIPLINES, MENTOR_SKILLS, MENTOR_TOOLS } from "~/Mentor/types"
 
 const MENTOR_DETAIL = {
   password: "123456789",
@@ -15,9 +16,9 @@ const MENTOR_DETAIL = {
   primaryExpertise: "123",
   secondaryExpertise: "123",
   tertiaryExpertise: "123",
-  disciplines: ["123"],
-  skills: ["123"],
-  tools: ["123"],
+  disciplines: [MENTOR_DISCIPLINES.BIOLOGY],
+  skills: [MENTOR_SKILLS.ADOBE_PHOTOSHOP],
+  tools: [MENTOR_TOOLS.ADOBE_ILLUSTRATOR],
   quickReply: false,
   education: "高雄科技大學-海事資訊科技系",
 }

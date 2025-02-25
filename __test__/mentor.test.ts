@@ -8,6 +8,7 @@ import mentorRouter from "~/Mentor/mentor.router"
 import { RESPONSE_CODE } from "~/types"
 import { MENTOR_ONE } from "./utils/constant"
 import { DataBase } from "./utils/db.config"
+import { MENTOR_DISCIPLINES, MENTOR_SKILLS, MENTOR_TOOLS } from "~/Mentor/types"
 
 let server: Express
 const DB = new DataBase()
@@ -65,11 +66,11 @@ describe("Mentor router POST: Mentor sign-up", () => {
       .set({
         "Content-Type": "application/json",
       })
-      .field("disciplines[0]", "first disciplines")
-      .field("disciplines[1]", "second disciplines")
-      .field("skills[0]", "first skill")
-      .field("skills[1]", "second skill")
-      .field("tools[0]", "first tools")
+      .field("disciplines[0]", MENTOR_DISCIPLINES.BIOLOGY)
+      .field("disciplines[1]", MENTOR_DISCIPLINES.BUSINESS_ADMINISTRATION)
+      .field("skills[0]", MENTOR_SKILLS.ADOBE_PHOTOSHOP)
+      .field("skills[1]", MENTOR_SKILLS.ANGULAR)
+      .field("tools[0]", MENTOR_TOOLS.ADOBE_ILLUSTRATOR)
       .attach("avatar", path.join(__dirname, "/mock/Dog.png"))
 
     expect(res.status).toBe(200)
@@ -79,25 +80,25 @@ describe("Mentor router POST: Mentor sign-up", () => {
     expect(res.body.password).toBeUndefined()
   })
 
-  it("(o) Should return an error with response code 4003 when user email has been created.", async () => {
+  it("(x) Should return an error with response code 4003 when user email has been created.", async () => {
     const res = await request(server)
       .post("/mentor/signUp")
       .field(MENTOR_DATA)
       .set({
         "Content-Type": "application/json",
       })
-      .field("disciplines[0]", "first disciplines")
-      .field("disciplines[1]", "second disciplines")
-      .field("skills[0]", "first skill")
-      .field("skills[1]", "second skill")
-      .field("tools[0]", "first tools")
+      .field("disciplines[0]", MENTOR_DISCIPLINES.BIOLOGY)
+      .field("disciplines[1]", MENTOR_DISCIPLINES.BUSINESS_ADMINISTRATION)
+      .field("skills[0]", MENTOR_SKILLS.ADOBE_PHOTOSHOP)
+      .field("skills[1]", MENTOR_SKILLS.ANGULAR)
+      .field("tools[0]", MENTOR_TOOLS.ADOBE_ILLUSTRATOR)
       .attach("avatar", path.join(__dirname, "/mock/Dog.png"))
 
     expect(res.status).toBe(403)
     expect(res.body.code).toBe(RESPONSE_CODE.DATA_DUPLICATE)
   })
 
-  it("(o) Should return an error with response code 4003 when user email has been created.", async () => {
+  it("(x) Should return an error with response code 4001 when the request body is missing the required data.", async () => {
     const res = await request(server)
       .post("/mentor/signUp")
       .field(MENTOR_DATA)
@@ -105,6 +106,23 @@ describe("Mentor router POST: Mentor sign-up", () => {
         "Content-Type": "application/json",
       })
       //Missing data: disciplines, skills
+      .field("tools[0]", "first tools")
+      .attach("avatar", path.join(__dirname, "/mock/Dog.png"))
+
+    expect(res.status).toBe(422)
+    expect(res.body.code).toBe(RESPONSE_CODE.VALIDATE_ERROR)
+  })
+
+  it("(x) Should return an error with response code 4001 when the required data doesn't follow the validation.", async () => {
+    const res = await request(server)
+      .post("/mentor/signUp")
+      .field(MENTOR_DATA)
+      .set({
+        "Content-Type": "application/json",
+      })
+      //disciplines, skills and tools data doesn't follow the validation.
+      .field("disciplines[0]", "first disciplines")
+      .field("skills[0]", "first skill")
       .field("tools[0]", "first tools")
       .attach("avatar", path.join(__dirname, "/mock/Dog.png"))
 
@@ -121,6 +139,8 @@ describe("Mentor router POST: Mentor sign-up", () => {
  *  (x) Should return an error with response code 4003 when user email has been created.
  *
  *  (x) Should return an error with response code 4001 when the request body is missing the required data.
+ *
+ *  (x) Should return an error with response code 4001 when the required data doesn't follow the validation.
  *
  */
 

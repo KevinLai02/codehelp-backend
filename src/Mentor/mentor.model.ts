@@ -1,5 +1,14 @@
 import { Mentor } from "~/db/entities/Mentor"
-import { IMentorModel } from "./types"
+import { MentorDisciplines } from "~/db/entities/MentorDisciplines"
+import { MentorSkills } from "~/db/entities/MentorSkills"
+import { MentorTools } from "~/db/entities/MentorTools"
+import {
+  IMentorModel,
+  IMentorDisciplines,
+  IMentorTools,
+  IMentorSkills,
+} from "./types"
+import dataSource from "~/db/dataSource"
 
 export const addMentor = async (data: IMentorModel) => {
   const {
@@ -18,9 +27,6 @@ export const addMentor = async (data: IMentorModel) => {
     primaryExpertise,
     secondaryExpertise,
     tertiaryExpertise,
-    disciplines,
-    skills,
-    tools,
     education,
   } = data
 
@@ -40,10 +46,8 @@ export const addMentor = async (data: IMentorModel) => {
   newMentor.primaryExpertise = primaryExpertise
   newMentor.secondaryExpertise = secondaryExpertise
   newMentor.tertiaryExpertise = tertiaryExpertise
-  newMentor.disciplines = disciplines
-  newMentor.skills = skills
-  newMentor.tools = tools
   newMentor.education = education
+
   return await newMentor.save()
 }
 
@@ -56,9 +60,14 @@ export const findMentorBy = async ({
   email?: string
   userName?: string
 }) => {
-  return Mentor.findOne({
-    where: [{ id }, { userName }, { email }],
-  })
+  return Mentor.createQueryBuilder("mentor")
+    .leftJoinAndSelect("mentor.mentorDisciplines", "mentorDisciplines")
+    .leftJoinAndSelect("mentor.mentorTools", "mentorTools")
+    .leftJoinAndSelect("mentor.mentorSkills", "mentorSkills")
+    .where("mentor.id = :mentorId", { mentorId: id })
+    .orWhere("mentor.email = :mentorEmail", { mentorEmail: email })
+    .orWhere("mentor.userName = :userName", { userName })
+    .getOne()
 }
 
 export const findManyAndCount = async ({
@@ -71,6 +80,9 @@ export const findManyAndCount = async ({
   keyword?: string
 }) => {
   return Mentor.createQueryBuilder("mentor")
+    .leftJoin("mentor.mentorDisciplines", "mentorDisciplines")
+    .leftJoin("mentor.mentorTools", "mentorTools")
+    .leftJoin("mentor.mentorSkills", "mentorSkills")
     .where("mentor.user_name ILIKE COALESCE(:keyword, '%')", {
       keyword: keyword && `%${keyword}%`,
     })
@@ -90,15 +102,32 @@ export const findManyAndCount = async ({
       "mentor.primaryExpertise",
       "mentor.secondaryExpertise",
       "mentor.tertiaryExpertise",
-      "mentor.disciplines",
-      "mentor.skills",
-      "mentor.tools",
       "mentor.createdAt",
       "mentor.updatedAt",
       "mentor.quickReply",
       "mentor.experience",
+      "mentorDisciplines",
+      "mentorSkills",
+      "mentorTools",
     ])
     .take(count)
     .skip(skip)
     .getManyAndCount()
+}
+
+export const addMentorDisciplines = (
+  mentorDisciplinesList: IMentorDisciplines[],
+) => {
+  const MentorDisciplinesRepo = dataSource.getRepository(MentorDisciplines)
+  return MentorDisciplinesRepo.save(mentorDisciplinesList)
+}
+
+export const addMentorSkills = (mentorSkillsList: IMentorSkills[]) => {
+  const MentorSkillsRepo = dataSource.getRepository(MentorSkills)
+  return MentorSkillsRepo.save(mentorSkillsList)
+}
+
+export const addMentorTools = (mentorToolsList: IMentorTools[]) => {
+  const MentorToolsRepo = dataSource.getRepository(MentorTools)
+  return MentorToolsRepo.save(mentorToolsList)
 }

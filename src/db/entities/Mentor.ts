@@ -1,5 +1,8 @@
 import { BaseEntity, Column, Entity, Index, OneToMany } from "typeorm"
 import { Chatroom } from "./Chatroom"
+import { MentorDisciplines } from "./MentorDisciplines"
+import { MentorSkills } from "./MentorSkills"
+import { MentorTools } from "./MentorTools"
 
 @Index("mentor_email_key", ["email"], { unique: true })
 @Index("mentor_pkey", ["id"], { unique: true })
@@ -68,15 +71,6 @@ export class Mentor extends BaseEntity {
   })
   tertiaryExpertise?: string
 
-  @Column("jsonb", { name: "disciplines" })
-  disciplines?: object
-
-  @Column("jsonb", { name: "skills" })
-  skills?: object
-
-  @Column("jsonb", { name: "tools" })
-  tools?: object
-
   @Column("timestamp without time zone", {
     name: "created_at",
     default: () => "now()",
@@ -104,4 +98,16 @@ export class Mentor extends BaseEntity {
 
   @OneToMany(() => Chatroom, (chatroom) => chatroom.mentor)
   chatrooms?: Chatroom[]
+
+  @OneToMany(
+    () => MentorDisciplines,
+    (mentorDisciplines) => mentorDisciplines.mentor,
+  )
+  mentorDisciplines?: MentorDisciplines[]
+
+  @OneToMany(() => MentorSkills, (mentorSkills) => mentorSkills.mentor)
+  mentorSkills?: MentorSkills[]
+
+  @OneToMany(() => MentorTools, (mentorTools) => mentorTools.mentor)
+  mentorTools?: MentorTools[]
 }
