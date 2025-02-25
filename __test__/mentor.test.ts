@@ -8,11 +8,18 @@ import { addMentor } from "~/Mentor/mentor.model"
 import mentorRouter from "~/Mentor/mentor.router"
 import { MENTOR_DISCIPLINES, MENTOR_SKILLS, MENTOR_TOOLS } from "~/Mentor/types"
 import { RESPONSE_CODE } from "~/types"
+import {
+  MENTOR_ONE,
+  NOT_EXISTS_ID,
+  NOT_EXISTS_MEMBER_TOKEN,
+} from "./utils/constant"
+
 import { generateToken } from "~/utils/account"
-import { MENTOR_ONE, NOT_EXISTS_MEMBER_TOKEN } from "./utils/constant"
+
 import { DataBase } from "./utils/db.config"
 
 let server: Express
+let mentorId: string
 let mentor: Mentor
 let mentorToken: string
 const DB = new DataBase()
@@ -58,6 +65,10 @@ beforeAll(async () => {
       ...MENTOR_ONE,
       password: encryptedMentorPassword,
     })
+
+    mentorToken = generateToken(mentor)
+    mentorId = mentor.id!
+
     server.use("/mentor", [mentorRouter])
   } catch (error) {
     console.log(error)
@@ -226,5 +237,46 @@ describe("Mentor router GET: Mentor List", () => {
  *  (x) Should return an error with response code 4002 when the user is not found.
  *
  *  (x) Should return an error with response code 4001 when the pagination params is error.
+ *
+ */
+
+describe("Mentor router GET: Mentor Info", () => {
+  it("(o) Should return mentor info when requested successfully.", async () => {
+    const res = await request(server)
+      .get(`/mentor/info/${mentorId}`)
+      .set("Authorization", mentorToken)
+
+    expect(res.status).toBe(200)
+    expect(res.body.status).toBe("ok")
+    expect(res.body.mentor).toBeDefined()
+  })
+
+  it("(x) Should return an error with response code 4001 when the mentor is not found.", async () => {
+    const res = await request(server)
+      .get(`/mentor/info/${NOT_EXISTS_ID}`)
+      .set("Authorization", mentorToken)
+
+    expect(res.status).toBe(422)
+    expect(res.body.code).toBe(RESPONSE_CODE.VALIDATE_ERROR)
+  })
+
+  it("(x) Should return an error with response code 4002 when the user is not found.", async () => {
+    const res = await request(server)
+      .get(`/mentor/info/${mentorId}`)
+      .set("Authorization", NOT_EXISTS_MEMBER_TOKEN)
+
+    expect(res.status).toBe(401)
+    expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)
+  })
+})
+
+/*
+ * [GET] Mentor Info
+ *
+ * (o) Should return mentor info when requested successfully.
+ *
+ * (x) Should return an error with response code 4001 when the mentor is not found.
+ *
+ * (x) Should return an error with response code 4002 when the user is not found.
  *
  */

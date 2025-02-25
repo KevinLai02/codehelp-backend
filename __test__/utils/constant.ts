@@ -1,11 +1,8 @@
 import jwt from "jsonwebtoken"
 import { IMemberModel } from "~/Member/types"
-import {
-  IMentorModel,
-  MENTOR_DISCIPLINES,
-  MENTOR_SKILLS,
-  MENTOR_TOOLS,
-} from "~/Mentor/types"
+import { IMentorModel } from "~/Mentor/types"
+
+import { MENTOR_DISCIPLINES, MENTOR_SKILLS, MENTOR_TOOLS } from "~/Mentor/types"
 
 const MENTOR_DETAIL = {
   password: "123456789",
