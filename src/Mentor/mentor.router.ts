@@ -8,6 +8,7 @@ import {
 } from "./param-validation"
 import { getMentorInfo, getMentorList, signUp } from "./mentor.controller"
 import { uploadFiles } from "~/middleware/file"
+import auth from "~/middleware/auth"
 
 const router = express.Router()
 
@@ -19,7 +20,9 @@ router
     signUp,
   )
 
-router.route("/info/:id").get(validation(getMentorInfoSchema), getMentorInfo)
+router
+  .route("/info/:id")
+  .get(validation(getMentorInfoSchema), auth, getMentorInfo)
 
-router.route("/list").get(validation(searchSchema), getMentorList)
+router.route("/list").get(validation(searchSchema), auth, getMentorList)
 export default router

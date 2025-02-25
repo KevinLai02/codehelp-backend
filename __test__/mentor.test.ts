@@ -3,14 +3,18 @@ import bodyParser from "body-parser"
 import express, { Express } from "express"
 import path from "path"
 import request from "supertest"
+import { Mentor } from "~/db/entities/Mentor"
 import { addMentor } from "~/Mentor/mentor.model"
 import mentorRouter from "~/Mentor/mentor.router"
-import { RESPONSE_CODE } from "~/types"
-import { MENTOR_ONE } from "./utils/constant"
-import { DataBase } from "./utils/db.config"
 import { MENTOR_DISCIPLINES, MENTOR_SKILLS, MENTOR_TOOLS } from "~/Mentor/types"
+import { RESPONSE_CODE } from "~/types"
+import { generateToken } from "~/utils/account"
+import { MENTOR_ONE, NOT_EXISTS_MEMBER_TOKEN } from "./utils/constant"
+import { DataBase } from "./utils/db.config"
 
 let server: Express
+let mentor: Mentor
+let mentorToken: string
 const DB = new DataBase()
 const tokenStartWithBearer = /^Bearer/
 
@@ -43,6 +47,13 @@ beforeAll(async () => {
       }),
     )
     const encryptedMentorPassword = await bcrypt.hash(MENTOR_ONE.password, 10)
+    mentor = await addMentor({
+      ...MENTOR_ONE,
+      password: encryptedMentorPassword,
+    })
+
+    mentorToken = generateToken(mentor)
+
     await addMentor({
       ...MENTOR_ONE,
       password: encryptedMentorPassword,
@@ -148,6 +159,7 @@ describe("Mentor router GET: Mentor List", () => {
   it("(o) Should return mentor list when requested successfully.", async () => {
     const res = await request(server)
       .get("/mentor/list")
+      .set("Authorization", mentorToken)
       .query({ page: 1, count: 10 })
 
     expect(res.status).toBe(200)
@@ -159,6 +171,7 @@ describe("Mentor router GET: Mentor List", () => {
   it("(o) Should return filtered mentor list when the keyword is defined.", async () => {
     const res = await request(server)
       .get("/mentor/list")
+      .set("Authorization", mentorToken)
       .query({ page: 1, count: 10, keyword: "SignUp" })
 
     expect(res.status).toBe(200)
@@ -170,6 +183,7 @@ describe("Mentor router GET: Mentor List", () => {
   it("(o) Should return empty array when the keyword not found.", async () => {
     const res = await request(server)
       .get("/mentor/list")
+      .set("Authorization", mentorToken)
       .query({ page: 1, count: 10, keyword: "test for empty array" })
 
     expect(res.status).toBe(200)
@@ -182,10 +196,21 @@ describe("Mentor router GET: Mentor List", () => {
     const res = await request(server)
       .get("/mentor/list")
       // Missing count parameter
+      .set("Authorization", mentorToken)
       .query({ page: 1 })
 
     expect(res.status).toBe(422)
     expect(res.body.code).toBe(RESPONSE_CODE.VALIDATE_ERROR)
+  })
+
+  it("(x) Should return an error with response code 4002 when the user is not found.", async () => {
+    const res = await request(server)
+      .get("/mentor/list")
+      .set("Authorization", NOT_EXISTS_MEMBER_TOKEN)
+      .query({ page: 1, count: 10 })
+
+    expect(res.status).toBe(401)
+    expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)
   })
 })
 
@@ -197,6 +222,8 @@ describe("Mentor router GET: Mentor List", () => {
  *  (o) Should return filtered mentor list when the keyword is defined.
  *
  *  (o) Should return empty array when the keyword not found.
+ *
+ *  (x) Should return an error with response code 4002 when the user is not found.
  *
  *  (x) Should return an error with response code 4001 when the pagination params is error.
  *

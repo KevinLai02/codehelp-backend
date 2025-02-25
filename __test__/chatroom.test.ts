@@ -11,23 +11,11 @@ import { addMember } from "../src/Member/member.model"
 import { Member } from "~/db/entities/Member"
 import { Mentor } from "~/db/entities/Mentor"
 import { generateToken } from "~/utils/account"
-import jwt from "jsonwebtoken"
 import { add } from "~/Chatroom/chatroom.model"
+import { NOT_EXISTS_ID, NOT_EXISTS_MEMBER_TOKEN } from "./utils/constant"
 
 let server: Express
 const DB = new DataBase()
-const NOT_EXISTS_ID = "09e7c567-05dd-4cb2-b789-df0344401f88"
-const NOT_EXISTS_MEMBER_TOKEN =
-  "Bearer " +
-  jwt.sign(
-    {
-      userName: "none",
-      email: "none",
-      id: "09e7c567-05dd-4cb2-b789-df0344401f88",
-    },
-    String(process.env.TOKEN),
-    { expiresIn: "30 day" },
-  )
 let mentor: Mentor
 let mentorToken: string
 let member: Member

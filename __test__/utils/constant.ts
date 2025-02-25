@@ -1,6 +1,11 @@
+import jwt from "jsonwebtoken"
 import { IMemberModel } from "~/Member/types"
-import { IMentorModel } from "~/Mentor/types"
-import { MENTOR_DISCIPLINES, MENTOR_SKILLS, MENTOR_TOOLS } from "~/Mentor/types"
+import {
+  IMentorModel,
+  MENTOR_DISCIPLINES,
+  MENTOR_SKILLS,
+  MENTOR_TOOLS,
+} from "~/Mentor/types"
 
 const MENTOR_DETAIL = {
   password: "123456789",
@@ -53,3 +58,17 @@ export const MEMBER: IMemberModel = {
   email: "member@gmail.com",
   ...MEMBER_DETAIL,
 }
+
+export const NOT_EXISTS_ID = "09e7c567-05dd-4cb2-b789-df0344401f88"
+
+export const NOT_EXISTS_MEMBER_TOKEN =
+  "Bearer " +
+  jwt.sign(
+    {
+      userName: "none",
+      email: "none",
+      id: "09e7c567-05dd-4cb2-b789-df0344401f88",
+    },
+    String(process.env.TOKEN),
+    { expiresIn: "30 day" },
+  )
