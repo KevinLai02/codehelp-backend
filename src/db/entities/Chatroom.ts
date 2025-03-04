@@ -1,44 +1,36 @@
 import {
   BaseEntity,
-  Column,
+  CreateDateColumn,
   Entity,
-  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
+  PrimaryGeneratedColumn,
 } from "typeorm"
 import { Member } from "./Member"
-import { Mentor } from "./Mentor"
 import { Message } from "./Message"
+import { Mentor } from "./Mentor"
 
-@Index("chatroom_pkey", ["id"], { unique: true })
 @Entity("chatroom", { schema: "public" })
 export class Chatroom extends BaseEntity {
-  @Column("uuid", {
-    primary: true,
-    name: "id",
-    default: () => "gen_random_uuid()",
-  })
-  id?: string
+  @PrimaryGeneratedColumn("uuid")
+  id: string
 
-  @Column("timestamp without time zone", {
-    name: "created_at",
-    default: () => "now()",
-  })
-  createdAt?: Date
+  @CreateDateColumn()
+  created_at: Date
 
   @ManyToOne(() => Member, (member) => member.chatrooms, {
     onDelete: "CASCADE",
   })
   @JoinColumn([{ name: "member_id", referencedColumnName: "id" }])
-  member?: Member
+  member: Member
 
   @ManyToOne(() => Mentor, (mentor) => mentor.chatrooms, {
     onDelete: "CASCADE",
   })
   @JoinColumn([{ name: "mentor_id", referencedColumnName: "id" }])
-  mentor?: Mentor
+  mentor: Mentor
 
   @OneToMany(() => Message, (message) => message.chatroom)
-  messages?: Message[]
+  messages: Message[]
 }

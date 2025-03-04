@@ -1,38 +1,31 @@
 import {
   BaseEntity,
-  Column,
+  CreateDateColumn,
   Entity,
-  Index,
   JoinColumn,
   ManyToOne,
+  PrimaryGeneratedColumn,
 } from "typeorm"
 import { Chatroom } from "./Chatroom"
+import { ColumnTypeAdapter } from "../utils/ColumnTypeAdapter"
 
-@Index("message_pkey", ["id"], { unique: true })
 @Entity("message", { schema: "public" })
 export class Message extends BaseEntity {
-  @Column("uuid", {
-    primary: true,
-    name: "id",
-    default: () => "gen_random_uuid()",
-  })
-  id?: string
+  @PrimaryGeneratedColumn("uuid")
+  id: string
 
-  @Column("uuid", { name: "user_id" })
-  userId?: string
+  @ColumnTypeAdapter("uuid", { name: "user_id" })
+  userId: string
 
-  @Column("text", { name: "content" })
-  content?: string
+  @ColumnTypeAdapter("text", { name: "content" })
+  content: string
 
-  @Column("timestamp without time zone", {
-    name: "created_at",
-    default: () => "now()",
-  })
-  createdAt?: Date
+  @CreateDateColumn()
+  created_at: Date
 
   @ManyToOne(() => Chatroom, (chatroom) => chatroom.messages, {
     onDelete: "CASCADE",
   })
   @JoinColumn([{ name: "chatroom_id", referencedColumnName: "id" }])
-  chatroom?: Chatroom
+  chatroom: Chatroom
 }

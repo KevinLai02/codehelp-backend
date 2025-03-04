@@ -8,7 +8,6 @@ import {
   IMentorTools,
   IMentorSkills,
 } from "./types"
-import dataSource from "~/db/dataSource"
 
 export const addMentor = async (data: IMentorModel) => {
   const {
@@ -83,7 +82,7 @@ export const findManyAndCount = async ({
     .leftJoin("mentor.mentorDisciplines", "mentorDisciplines")
     .leftJoin("mentor.mentorTools", "mentorTools")
     .leftJoin("mentor.mentorSkills", "mentorSkills")
-    .where("mentor.user_name ILIKE COALESCE(:keyword, '%')", {
+    .where("LOWER(mentor.user_name) LIKE LOWER(COALESCE(:keyword, '%'))", {
       keyword: keyword && `%${keyword}%`,
     })
     .select([
@@ -102,8 +101,8 @@ export const findManyAndCount = async ({
       "mentor.primaryExpertise",
       "mentor.secondaryExpertise",
       "mentor.tertiaryExpertise",
-      "mentor.createdAt",
-      "mentor.updatedAt",
+      "mentor.created_at",
+      "mentor.updated_at",
       "mentor.quickReply",
       "mentor.experience",
       "mentorDisciplines",
@@ -115,19 +114,28 @@ export const findManyAndCount = async ({
     .getManyAndCount()
 }
 
-export const addMentorDisciplines = (
+export const addMentorDisciplines = async (
   mentorDisciplinesList: IMentorDisciplines[],
 ) => {
-  const MentorDisciplinesRepo = dataSource.getRepository(MentorDisciplines)
-  return MentorDisciplinesRepo.save(mentorDisciplinesList)
+  return await MentorDisciplines.createQueryBuilder()
+    .insert()
+    .into(MentorDisciplines)
+    .values(mentorDisciplinesList)
+    .execute()
 }
 
-export const addMentorSkills = (mentorSkillsList: IMentorSkills[]) => {
-  const MentorSkillsRepo = dataSource.getRepository(MentorSkills)
-  return MentorSkillsRepo.save(mentorSkillsList)
+export const addMentorSkills = async (mentorSkillsList: IMentorSkills[]) => {
+  return await MentorSkills.createQueryBuilder()
+    .insert()
+    .into(MentorSkills)
+    .values(mentorSkillsList)
+    .execute()
 }
 
-export const addMentorTools = (mentorToolsList: IMentorTools[]) => {
-  const MentorToolsRepo = dataSource.getRepository(MentorTools)
-  return MentorToolsRepo.save(mentorToolsList)
+export const addMentorTools = async (mentorToolsList: IMentorTools[]) => {
+  return await MentorTools.createQueryBuilder()
+    .insert()
+    .into(MentorTools)
+    .values(mentorToolsList)
+    .execute()
 }

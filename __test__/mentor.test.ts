@@ -1,28 +1,17 @@
-import bcrypt from "bcrypt"
 import bodyParser from "body-parser"
 import express, { Express } from "express"
 import path from "path"
 import request from "supertest"
-import { Mentor } from "~/db/entities/Mentor"
-import { addMentor } from "~/Mentor/mentor.model"
 import mentorRouter from "~/Mentor/mentor.router"
 import { MENTOR_DISCIPLINES, MENTOR_SKILLS, MENTOR_TOOLS } from "~/Mentor/types"
 import { RESPONSE_CODE } from "~/types"
-import {
-  MENTOR_ONE,
-  NOT_EXISTS_ID,
-  NOT_EXISTS_MEMBER_TOKEN,
-} from "./utils/constant"
-
-import { generateToken } from "~/utils/account"
-
-import { DataBase } from "./utils/db.config"
+import { MENTOR_ONE, NOT_EXISTS_ID, addOneMentor } from "./utils/constant"
+import { SQLite } from "./utils/sqlite.config"
 
 let server: Express
 let mentorId: string
-let mentor: Mentor
-let mentorToken: string
-const DB = new DataBase()
+
+const sqlite = new SQLite()
 const tokenStartWithBearer = /^Bearer/
 
 const MENTOR_DATA = {
@@ -31,21 +20,21 @@ const MENTOR_DATA = {
   password: "123456789",
   gender: "f",
   country: "TW",
-  title: "123",
-  company: "123",
-  introduction: "123",
+  title: "title",
+  company: "company",
+  introduction: "introduction",
   phoneNumber: "0900000000",
   level: 0,
-  linkedInURL: "123",
-  primaryExpertise: "123",
-  secondaryExpertise: "123",
-  tertiaryExpertise: "123",
+  linkedInURL: "linkedInURL",
+  primaryExpertise: "primaryExpertise",
+  secondaryExpertise: "secondaryExpertise",
+  tertiaryExpertise: "tertiaryExpertise",
   education: "高雄科技大學-海事資訊科技系",
 }
 
 beforeAll(async () => {
   try {
-    await DB.setup()
+    await sqlite.setup()
     server = express()
     server.use(bodyParser.json())
     server.use(
@@ -53,21 +42,9 @@ beforeAll(async () => {
         extended: true,
       }),
     )
-    const encryptedMentorPassword = await bcrypt.hash(MENTOR_ONE.password, 10)
-    mentor = await addMentor({
-      ...MENTOR_ONE,
-      password: encryptedMentorPassword,
-    })
+    const { newMentorId } = await addOneMentor(MENTOR_ONE)
 
-    mentorToken = generateToken(mentor)
-
-    await addMentor({
-      ...MENTOR_ONE,
-      password: encryptedMentorPassword,
-    })
-
-    mentorToken = generateToken(mentor)
-    mentorId = mentor.id!
+    mentorId = newMentorId
 
     server.use("/mentor", [mentorRouter])
   } catch (error) {
@@ -77,7 +54,7 @@ beforeAll(async () => {
 })
 
 afterAll(() => {
-  DB.destroy()
+  sqlite.destroy()
 })
 
 describe("Mentor router POST: Mentor sign-up", () => {
@@ -128,7 +105,7 @@ describe("Mentor router POST: Mentor sign-up", () => {
         "Content-Type": "application/json",
       })
       //Missing data: disciplines, skills
-      .field("tools[0]", "first tools")
+      .field("tools[0]", MENTOR_TOOLS.ADOBE_ILLUSTRATOR)
       .attach("avatar", path.join(__dirname, "/mock/Dog.png"))
 
     expect(res.status).toBe(422)
@@ -170,7 +147,6 @@ describe("Mentor router GET: Mentor List", () => {
   it("(o) Should return mentor list when requested successfully.", async () => {
     const res = await request(server)
       .get("/mentor/list")
-      .set("Authorization", mentorToken)
       .query({ page: 1, count: 10 })
 
     expect(res.status).toBe(200)
@@ -182,7 +158,6 @@ describe("Mentor router GET: Mentor List", () => {
   it("(o) Should return filtered mentor list when the keyword is defined.", async () => {
     const res = await request(server)
       .get("/mentor/list")
-      .set("Authorization", mentorToken)
       .query({ page: 1, count: 10, keyword: "SignUp" })
 
     expect(res.status).toBe(200)
@@ -194,7 +169,6 @@ describe("Mentor router GET: Mentor List", () => {
   it("(o) Should return empty array when the keyword not found.", async () => {
     const res = await request(server)
       .get("/mentor/list")
-      .set("Authorization", mentorToken)
       .query({ page: 1, count: 10, keyword: "test for empty array" })
 
     expect(res.status).toBe(200)
@@ -207,21 +181,10 @@ describe("Mentor router GET: Mentor List", () => {
     const res = await request(server)
       .get("/mentor/list")
       // Missing count parameter
-      .set("Authorization", mentorToken)
       .query({ page: 1 })
 
     expect(res.status).toBe(422)
     expect(res.body.code).toBe(RESPONSE_CODE.VALIDATE_ERROR)
-  })
-
-  it("(x) Should return an error with response code 4002 when the user is not found.", async () => {
-    const res = await request(server)
-      .get("/mentor/list")
-      .set("Authorization", NOT_EXISTS_MEMBER_TOKEN)
-      .query({ page: 1, count: 10 })
-
-    expect(res.status).toBe(401)
-    expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)
   })
 })
 
@@ -234,17 +197,13 @@ describe("Mentor router GET: Mentor List", () => {
  *
  *  (o) Should return empty array when the keyword not found.
  *
- *  (x) Should return an error with response code 4002 when the user is not found.
- *
  *  (x) Should return an error with response code 4001 when the pagination params is error.
  *
  */
 
 describe("Mentor router GET: Mentor Info", () => {
   it("(o) Should return mentor info when requested successfully.", async () => {
-    const res = await request(server)
-      .get(`/mentor/info/${mentorId}`)
-      .set("Authorization", mentorToken)
+    const res = await request(server).get(`/mentor/info/${mentorId}`)
 
     expect(res.status).toBe(200)
     expect(res.body.status).toBe("ok")
@@ -252,20 +211,9 @@ describe("Mentor router GET: Mentor Info", () => {
   })
 
   it("(x) Should return an error with response code 4001 when the mentor is not found.", async () => {
-    const res = await request(server)
-      .get(`/mentor/info/${NOT_EXISTS_ID}`)
-      .set("Authorization", mentorToken)
+    const res = await request(server).get(`/mentor/info/${NOT_EXISTS_ID}`)
 
-    expect(res.status).toBe(422)
-    expect(res.body.code).toBe(RESPONSE_CODE.VALIDATE_ERROR)
-  })
-
-  it("(x) Should return an error with response code 4002 when the user is not found.", async () => {
-    const res = await request(server)
-      .get(`/mentor/info/${mentorId}`)
-      .set("Authorization", NOT_EXISTS_MEMBER_TOKEN)
-
-    expect(res.status).toBe(401)
+    expect(res.status).toBe(404)
     expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)
   })
 })
@@ -276,7 +224,5 @@ describe("Mentor router GET: Mentor Info", () => {
  * (o) Should return mentor info when requested successfully.
  *
  * (x) Should return an error with response code 4001 when the mentor is not found.
- *
- * (x) Should return an error with response code 4002 when the user is not found.
  *
  */

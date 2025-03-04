@@ -1,48 +1,41 @@
 import {
   BaseEntity,
-  Column,
+  PrimaryGeneratedColumn,
   Entity,
-  Index,
   JoinColumn,
   ManyToOne,
+  CreateDateColumn,
+  Index,
 } from "typeorm"
 import { Mentor } from "./Mentor"
 import { MENTOR_DISCIPLINES } from "~/Mentor/types"
+import { ColumnTypeAdapter } from "../utils/ColumnTypeAdapter"
 
 @Index(
   "mentor_disciplines_mentor_id_discipline_key",
   ["discipline", "mentorId"],
   { unique: true },
 )
-@Index("mentor_disciplines_pkey", ["id"], { unique: true })
 @Entity("mentor_disciplines", { schema: "public" })
 export class MentorDisciplines extends BaseEntity {
-  @Column("uuid", {
-    primary: true,
-    name: "id",
-    default: () => "gen_random_uuid()",
-  })
-  id?: string
+  @PrimaryGeneratedColumn("uuid")
+  id: string
 
-  @Column("uuid", { name: "mentor_id", unique: true })
-  mentorId?: string
+  @ColumnTypeAdapter("uuid", { name: "mentor_id" })
+  mentorId: string
 
-  @Column("enum", {
+  @ColumnTypeAdapter("enum", {
     name: "discipline",
-    unique: true,
     enum: MENTOR_DISCIPLINES,
   })
-  discipline?: MENTOR_DISCIPLINES
+  discipline: MENTOR_DISCIPLINES
 
-  @Column("timestamp without time zone", {
-    name: "created_at",
-    default: () => "now()",
-  })
-  createdAt?: Date
+  @CreateDateColumn()
+  created_at: Date
 
   @ManyToOne(() => Mentor, (mentor) => mentor.mentorDisciplines, {
     onDelete: "CASCADE",
   })
   @JoinColumn([{ name: "mentor_id", referencedColumnName: "id" }])
-  mentor?: Mentor
+  mentor: Mentor
 }

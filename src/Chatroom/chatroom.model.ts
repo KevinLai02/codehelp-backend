@@ -51,7 +51,7 @@ export const findOneBy = async ({
     })
     .select([
       "chatroom.id",
-      "chatroom.createdAt",
+      "chatroom.created_at",
       "member.id",
       "member.userName",
       "member.avatar",
@@ -61,7 +61,7 @@ export const findOneBy = async ({
       "message.id",
       "message.userId",
       "message.content",
-      "message.createdAt",
+      "message.created_at",
     ])
     .getOne()
 }
@@ -86,7 +86,7 @@ export const findManyAndCount = async ({
     })
     .select([
       "chatroom.id",
-      "chatroom.createdAt",
+      "chatroom.created_at",
       "member.id",
       "member.userName",
       "member.avatar",

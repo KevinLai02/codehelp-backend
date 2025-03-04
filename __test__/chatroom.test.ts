@@ -2,11 +2,10 @@ import bodyParser from "body-parser"
 import express, { Express } from "express"
 import request from "supertest"
 import { RESPONSE_CODE } from "~/types"
-import { DataBase } from "./utils/db.config"
+import { SQLite } from "./utils/sqlite.config"
 import chatroomRouter from "../src/Chatroom/chatroom.router"
-import { addMentor } from "../src/Mentor/mentor.model"
 import bcrypt from "bcrypt"
-import { MEMBER, MENTOR_ONE, MENTOR_TWO } from "./utils/constant"
+import { MEMBER, MENTOR_ONE, MENTOR_TWO, addOneMentor } from "./utils/constant"
 import { addMember } from "../src/Member/member.model"
 import { Member } from "~/db/entities/Member"
 import { Mentor } from "~/db/entities/Mentor"
@@ -15,21 +14,20 @@ import { add } from "~/Chatroom/chatroom.model"
 import { NOT_EXISTS_ID, NOT_EXISTS_MEMBER_TOKEN } from "./utils/constant"
 
 let server: Express
-const DB = new DataBase()
+const sqlite = new SQLite()
 let mentor: Mentor
 let mentorToken: string
 let member: Member
 let memberToken: string
 let chatroomId: string
 
-let secondMentor: Mentor
 // For create the second chatroom.
 let secondChatroomId: string
 // For testing when the user(mentor) is not in chatroom(second chatroom).
 
 beforeAll(async () => {
   try {
-    await DB.setup()
+    await sqlite.setup()
     server = express()
     server.use(bodyParser.json())
     server.use(
@@ -38,12 +36,10 @@ beforeAll(async () => {
       }),
     )
     server.use("/chatroom", [chatroomRouter])
-    const encryptedMentorPassword = await bcrypt.hash(MENTOR_ONE.password, 10)
-    mentor = await addMentor({
-      ...MENTOR_ONE,
-      password: encryptedMentorPassword,
-    })
-    mentorToken = generateToken(mentor)
+
+    const { newMentorData: mentorOne } = await addOneMentor(MENTOR_ONE)
+    mentor = mentorOne
+    mentorToken = generateToken(mentorOne)
 
     const encryptedMemberPassword = await bcrypt.hash(MEMBER.password, 10)
     member = await addMember({
@@ -52,17 +48,10 @@ beforeAll(async () => {
     })
     memberToken = generateToken(member)
 
-    const encryptedSecondMentorPassword = await bcrypt.hash(
-      MENTOR_TWO.password,
-      10,
-    )
-    secondMentor = await addMentor({
-      ...MENTOR_TWO,
-      password: encryptedSecondMentorPassword,
-    })
+    const { newMentorData: mentorTwo } = await addOneMentor(MENTOR_TWO)
 
     const chatroom = await add({
-      mentor: secondMentor,
+      mentor: mentorTwo,
       member: member,
     })
     secondChatroomId = chatroom.id!
@@ -73,7 +62,7 @@ beforeAll(async () => {
 })
 
 afterAll(() => {
-  DB.destroy()
+  sqlite.destroy()
 })
 
 describe("Chatroom router POST: Create a chatroom", () => {
@@ -159,7 +148,7 @@ describe("Chatroom router GET: Chatroom info", () => {
 
     expect(res.status).toBe(200)
     expect(res.body.chatroom.id).toBeDefined()
-    expect(res.body.chatroom.createdAt).toBeDefined()
+    expect(res.body.chatroom.created_at).toBeDefined()
     expect(res.body.chatroom.mentor).toBeDefined()
     expect(res.body.chatroom.member).toBeDefined()
     expect(res.body.chatroom.messages).toBeDefined()

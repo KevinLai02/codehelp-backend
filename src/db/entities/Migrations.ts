@@ -1,13 +1,14 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm"
+import { BaseEntity, Entity, PrimaryGeneratedColumn } from "typeorm"
+import { ColumnTypeAdapter } from "../utils/ColumnTypeAdapter"
 
 @Entity("migrations", { schema: "public" })
 export class Migrations extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })
-  id?: number
+  id: number
 
-  @Column("bigint", { name: "timestamp" })
-  timestamp?: string
+  @ColumnTypeAdapter("bigint", { name: "timestamp" })
+  timestamp: string
 
-  @Column("character varying", { name: "name" })
-  name?: string
+  @ColumnTypeAdapter("character varying", { name: "name" })
+  name: string
 }

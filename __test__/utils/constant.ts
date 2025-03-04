@@ -1,8 +1,17 @@
 import jwt from "jsonwebtoken"
+import bcrypt from "bcrypt"
 import { IMemberModel } from "~/Member/types"
 import { IMentorModel } from "~/Mentor/types"
 
 import { MENTOR_DISCIPLINES, MENTOR_SKILLS, MENTOR_TOOLS } from "~/Mentor/types"
+import {
+  addMentor,
+  addMentorDisciplines,
+  addMentorSkills,
+  addMentorTools,
+  findMentorBy,
+} from "~/Mentor/mentor.model"
+import { Mentor } from "~/db/entities/Mentor"
 
 const MENTOR_DETAIL = {
   password: "123456789",
@@ -69,3 +78,37 @@ export const NOT_EXISTS_MEMBER_TOKEN =
     String(process.env.TOKEN),
     { expiresIn: "30 day" },
   )
+
+export const addOneMentor = async (
+  mentorData: IMentorModel,
+): Promise<{ newMentorData: Mentor; newMentorId: string }> => {
+  const encryptedMentorPassword = await bcrypt.hash(mentorData.password, 10)
+  const mentor = await addMentor({
+    ...mentorData,
+    password: encryptedMentorPassword,
+  })
+
+  await Promise.all([
+    addMentorDisciplines([
+      {
+        mentorId: mentor.id,
+        discipline: mentorData.disciplines[0],
+      },
+    ]),
+    addMentorSkills([
+      {
+        mentorId: mentor.id,
+        skill: mentorData.skills[0],
+      },
+    ]),
+    addMentorTools([
+      {
+        mentorId: mentor.id,
+        tool: mentorData.tools[0],
+      },
+    ]),
+  ])
+  const newMentorData = await findMentorBy({ id: mentor.id })
+
+  return { newMentorData: newMentorData!, newMentorId: mentor.id }
+}
