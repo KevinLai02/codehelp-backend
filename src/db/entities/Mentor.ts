@@ -6,8 +6,10 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm"
-import { Chatroom } from "./Chatroom"
 import { ColumnTypeAdapter } from "../utils/ColumnTypeAdapter"
+import { Booking } from "./Booking"
+import { Chatroom } from "./Chatroom"
+import { MentorAvailableTime } from "./MentorAvailableTime"
 import { MentorDisciplines } from "./MentorDisciplines"
 import { MentorSkills } from "./MentorSkills"
 import { MentorTools } from "./MentorTools"
@@ -104,13 +106,17 @@ export class Mentor extends BaseEntity {
   })
   education: string
 
+  @OneToMany(() => Booking, (booking) => booking.host)
+  bookings: Booking[]
+
   @OneToMany(() => Chatroom, (chatroom) => chatroom.mentor)
   chatrooms: Chatroom[]
 
-  toJSON() {
-    delete this.password
-    return this
-  }
+  @OneToMany(
+    () => MentorAvailableTime,
+    (mentorAvailableTime) => mentorAvailableTime.mentor,
+  )
+  mentorAvailableTimes: MentorAvailableTime[]
 
   @OneToMany(
     () => MentorDisciplines,
@@ -123,4 +129,9 @@ export class Mentor extends BaseEntity {
 
   @OneToMany(() => MentorTools, (mentorTools) => mentorTools.mentor)
   mentorTools: MentorTools[]
+
+  toJSON() {
+    delete this.password
+    return this
+  }
 }

@@ -1,5 +1,6 @@
 import { Member } from "~/db/entities/Member"
 import { IMemberModel } from "./types"
+import { In } from "typeorm"
 
 export const addMember = (data: IMemberModel) => {
   const {
@@ -43,5 +44,11 @@ export const findMemberBy = ({
 }) => {
   return Member.findOne({
     where: [{ id }, { userName }, { email }],
+  })
+}
+
+export const findMembersBy = ({ ids }: { ids: string[] }) => {
+  return Member.find({
+    where: [{ id: In(ids) }],
   })
 }

@@ -11,7 +11,7 @@ import { Member } from "~/db/entities/Member"
 import { Mentor } from "~/db/entities/Mentor"
 import { generateToken } from "~/utils/account"
 import { add } from "~/Chatroom/chatroom.model"
-import { NOT_EXISTS_ID, NOT_EXISTS_MEMBER_TOKEN } from "./utils/constant"
+import { NOT_EXISTS_ID, NOT_EXISTS_TOKEN } from "./utils/constant"
 
 let server: Express
 const sqlite = new SQLite()
@@ -98,7 +98,7 @@ describe("Chatroom router POST: Create a chatroom", () => {
       .send({
         mentorId: mentor.id,
       })
-      .set("Authorization", NOT_EXISTS_MEMBER_TOKEN)
+      .set("Authorization", NOT_EXISTS_TOKEN)
 
     expect(res.status).toBe(401)
     expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)
@@ -157,7 +157,7 @@ describe("Chatroom router GET: Chatroom info", () => {
   it("(x) Should return an error with response code 4002 when the user is not found.", async () => {
     const res = await request(server)
       .get(`/chatroom/info/${chatroomId}`)
-      .set("Authorization", NOT_EXISTS_MEMBER_TOKEN)
+      .set("Authorization", NOT_EXISTS_TOKEN)
 
     expect(res.status).toBe(401)
     expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)
@@ -222,7 +222,7 @@ describe("Chatroom router GET: Chatroom list", () => {
     const res = await request(server)
       .get("/chatroom/list")
       .query({ page: 1, count: 10 })
-      .set("Authorization", NOT_EXISTS_MEMBER_TOKEN)
+      .set("Authorization", NOT_EXISTS_TOKEN)
 
     expect(res.status).toBe(401)
     expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)
@@ -231,7 +231,7 @@ describe("Chatroom router GET: Chatroom list", () => {
   it("(x) Should return an error with response code 4001 when the pagination params is missing.", async () => {
     const res = await request(server)
       .get("/chatroom/list")
-      .set("Authorization", NOT_EXISTS_MEMBER_TOKEN)
+      .set("Authorization", NOT_EXISTS_TOKEN)
 
     expect(res.status).toBe(422)
     expect(res.body.code).toBe(RESPONSE_CODE.VALIDATE_ERROR)
@@ -272,7 +272,7 @@ describe("Chatroom router DELETE: Delete the chatroom", () => {
   it("(x) Should return an error with response code 4002 when the user is not found.", async () => {
     const res = await request(server)
       .delete(`/chatroom/delete/${chatroomId}`)
-      .set("Authorization", NOT_EXISTS_MEMBER_TOKEN)
+      .set("Authorization", NOT_EXISTS_TOKEN)
 
     expect(res.status).toBe(401)
     expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)

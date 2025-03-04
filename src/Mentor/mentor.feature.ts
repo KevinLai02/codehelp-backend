@@ -1,19 +1,28 @@
 import bcrypt from "bcrypt"
 import { RESPONSE_CODE } from "~/types"
-import { IMentorDisciplines, IMentorSkills, IMentorTools } from "./types"
+import {
+  IAvailableTime,
+  IMentorDisciplines,
+  IMentorSkills,
+  IMentorTools,
+} from "./types"
 import { generateToken } from "~/utils/account"
 import {
   addMentor,
   findManyAndCount,
   findMentorBy,
+  updateAvailableTime,
   addMentorDisciplines,
   addMentorSkills,
   addMentorTools,
 } from "./mentor.model"
 import { IKeywordPagination, IMentorRequestBody } from "~/Mentor/types"
+
 import { Mentor } from "~/db/entities/Mentor"
 import FeatureError from "~/utils/FeatureError"
 import { parseImageUrl, uploadFiles } from "~/utils/assetHelper"
+import { InsertResult } from "typeorm"
+import { addMentorIdToAvailableTimeList } from "./utils"
 
 export const save = async (
   data: IMentorRequestBody,
@@ -102,6 +111,27 @@ export const getList = async ({
     const [mentorList, total] = await findManyAndCount({ count, skip, keyword })
 
     return { mentorList, total }
+  } catch (error) {
+    throw error
+  }
+}
+
+export const updateMentorAvailableTime = async ({
+  mentorId,
+  availableTimeList,
+}: {
+  mentorId: string
+  availableTimeList: IAvailableTime[]
+}): Promise<InsertResult> => {
+  try {
+    const newAvailableTimeList = addMentorIdToAvailableTimeList(
+      availableTimeList,
+      mentorId,
+    )
+
+    const result = await updateAvailableTime(newAvailableTimeList)
+
+    return result
   } catch (error) {
     throw error
   }

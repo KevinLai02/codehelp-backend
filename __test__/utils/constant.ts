@@ -1,9 +1,8 @@
-import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken"
 import { IMemberModel } from "~/Member/types"
-import { IMentorModel } from "~/Mentor/types"
+import { IAvailableTime, IMentorModel } from "~/Mentor/types"
 
-import { MENTOR_DISCIPLINES, MENTOR_SKILLS, MENTOR_TOOLS } from "~/Mentor/types"
 import {
   addMentor,
   addMentorDisciplines,
@@ -11,6 +10,7 @@ import {
   addMentorTools,
   findMentorBy,
 } from "~/Mentor/mentor.model"
+import { MENTOR_DISCIPLINES, MENTOR_SKILLS, MENTOR_TOOLS } from "~/Mentor/types"
 import { Mentor } from "~/db/entities/Mentor"
 
 const MENTOR_DETAIL = {
@@ -65,15 +65,33 @@ export const MEMBER: IMemberModel = {
   ...MEMBER_DETAIL,
 }
 
+export const AVAILABLE_TIME: IAvailableTime[] = [
+  {
+    day: "MON",
+    timeCode: [1, 2, 3, 4, 5, 7, 8, 9, 10],
+  },
+  {
+    day: "TUE",
+    timeCode: [9, 10, 11, 12, 13, 14],
+  },
+  {
+    day: "WED",
+    timeCode: [15, 16, 17, 18],
+  },
+  {
+    day: "THU",
+    timeCode: [5, 6, 7, 8, 9, 10],
+  },
+]
 export const NOT_EXISTS_ID = "09e7c567-05dd-4cb2-b789-df0344401f88"
 
-export const NOT_EXISTS_MEMBER_TOKEN =
+export const NOT_EXISTS_TOKEN =
   "Bearer " +
   jwt.sign(
     {
       userName: "none",
       email: "none",
-      id: "09e7c567-05dd-4cb2-b789-df0344401f88",
+      id: NOT_EXISTS_ID,
     },
     String(process.env.TOKEN),
     { expiresIn: "30 day" },
@@ -114,3 +132,14 @@ export const addOneMentor = async (
 
   return { newMentorData: newMentorData!, newMentorId: mentor.id }
 }
+export const NOT_EXISTS_MEMBER_TOKEN =
+  "Bearer " +
+  jwt.sign(
+    {
+      userName: "none",
+      email: "none",
+      id: "09e7c567-05dd-4cb2-b789-df0344401f88",
+    },
+    String(process.env.TOKEN),
+    { expiresIn: "30 day" },
+  )

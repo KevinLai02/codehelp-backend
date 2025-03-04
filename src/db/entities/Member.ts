@@ -6,8 +6,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm"
-import { Chatroom } from "./Chatroom"
 import { ColumnTypeAdapter } from "../utils/ColumnTypeAdapter"
+import { BookingMember } from "./BookingMember"
+import { Chatroom } from "./Chatroom"
 
 @Entity("member", { schema: "public" })
 export class Member extends BaseEntity {
@@ -68,10 +69,13 @@ export class Member extends BaseEntity {
   @UpdateDateColumn()
   updated_at: Date
 
-  @OneToMany(() => Chatroom, (chatroom) => chatroom.member)
-  chatrooms: Chatroom[]
+  @OneToMany(() => BookingMember, (bookingMember) => bookingMember.member)
+  bookingMembers?: BookingMember[]
 
-  toJson() {
+  @OneToMany(() => Chatroom, (chatroom) => chatroom.member)
+  chatrooms?: Chatroom[]
+
+  toJSON() {
     delete this.password
     return this
   }

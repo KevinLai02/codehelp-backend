@@ -8,6 +8,9 @@ export function ColumnTypeAdapter(
 
   if (process.env.NODE_ENV === "test") {
     switch (type) {
+      case "int4":
+        newType = "text"
+        break
       case "smallint":
         newType = "integer"
         break
@@ -24,6 +27,9 @@ export function ColumnTypeAdapter(
         newType = "text"
         break
       case "enum":
+        newType = "text"
+        break
+      case "timestamp without time zone":
         newType = "text"
         break
     }

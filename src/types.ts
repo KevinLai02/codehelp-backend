@@ -75,3 +75,9 @@ export interface IMessageData {
 export interface IApi {
   (req: Request, res: Response): void
 }
+
+export interface IFeatureError {
+  status: string
+  code: RESPONSE_CODE
+  message: string | unknown
+}

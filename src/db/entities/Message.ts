@@ -6,8 +6,8 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm"
-import { Chatroom } from "./Chatroom"
 import { ColumnTypeAdapter } from "../utils/ColumnTypeAdapter"
+import { Chatroom } from "./Chatroom"
 
 @Entity("message", { schema: "public" })
 export class Message extends BaseEntity {
@@ -22,6 +22,9 @@ export class Message extends BaseEntity {
 
   @CreateDateColumn()
   created_at: Date
+
+  @ColumnTypeAdapter("smallint", { name: "type", default: () => "0" })
+  type: number
 
   @ManyToOne(() => Chatroom, (chatroom) => chatroom.messages, {
     onDelete: "CASCADE",

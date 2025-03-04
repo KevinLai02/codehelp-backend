@@ -129,6 +129,31 @@ export interface IKeywordPagination extends IPagination {
   keyword?: string
 }
 
+export type IAvailableTime = {
+  day: DAY_TYPE
+  timeCode: number[] | string
+}
+export interface IUpdateAvailableTime extends IAvailableTime {
+  mentorId: string
+}
+
+export interface IUpdateAvailableTimeResult {
+  id: string
+  user_name: string
+  available_time_list: IAvailableTime[]
+}
+
+export enum DAY {
+  "SUN" = 0,
+  "MON" = 1,
+  "TUE" = 2,
+  "WED" = 3,
+  "THU" = 4,
+  "FRI" = 5,
+  "SAT" = 6,
+}
+
+export type DAY_TYPE = keyof typeof DAY
 export interface IMentorDisciplines {
   mentorId: string
   discipline: MENTOR_DISCIPLINES

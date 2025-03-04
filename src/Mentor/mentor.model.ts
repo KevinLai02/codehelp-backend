@@ -1,12 +1,17 @@
 import { Mentor } from "~/db/entities/Mentor"
+
+import dataSource from "~/db/dataSource"
+import { MentorAvailableTime } from "~/db/entities/MentorAvailableTime"
 import { MentorDisciplines } from "~/db/entities/MentorDisciplines"
 import { MentorSkills } from "~/db/entities/MentorSkills"
 import { MentorTools } from "~/db/entities/MentorTools"
+import testDataSource from "~/db/testDataSource"
 import {
-  IMentorModel,
   IMentorDisciplines,
-  IMentorTools,
+  IMentorModel,
   IMentorSkills,
+  IMentorTools,
+  IUpdateAvailableTime,
 } from "./types"
 
 export const addMentor = async (data: IMentorModel) => {
@@ -63,6 +68,7 @@ export const findMentorBy = async ({
     .leftJoinAndSelect("mentor.mentorDisciplines", "mentorDisciplines")
     .leftJoinAndSelect("mentor.mentorTools", "mentorTools")
     .leftJoinAndSelect("mentor.mentorSkills", "mentorSkills")
+    .leftJoinAndSelect("mentor.mentorAvailableTimes", "availableTimes")
     .where("mentor.id = :mentorId", { mentorId: id })
     .orWhere("mentor.email = :mentorEmail", { mentorEmail: email })
     .orWhere("mentor.userName = :userName", { userName })
@@ -112,6 +118,17 @@ export const findManyAndCount = async ({
     .take(count)
     .skip(skip)
     .getManyAndCount()
+}
+
+export const updateAvailableTime = (
+  availableTimeList: IUpdateAvailableTime[],
+) => {
+  const currentDataSource =
+    process.env.NODE_ENV === "test" ? testDataSource : dataSource
+  const mentorAvailableTimeRepo =
+    currentDataSource.getRepository(MentorAvailableTime)
+
+  return mentorAvailableTimeRepo.upsert(availableTimeList, ["mentorId", "day"])
 }
 
 export const addMentorDisciplines = async (

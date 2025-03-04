@@ -16,7 +16,7 @@ let server: Express
 const sqlite = new SQLite()
 const CONTENT = "New message for the unit test."
 const NOT_EXISTS_ID = "09e7c567-05dd-4cb2-b789-df0344401f88"
-const NOT_EXISTS_MEMBER_TOKEN =
+const NOT_EXISTS_TOKEN =
   "Bearer " +
   jwt.sign(
     {
@@ -99,7 +99,7 @@ describe("Message router POST: Create a message", () => {
       .send({
         content: CONTENT,
       })
-      .set("Authorization", NOT_EXISTS_MEMBER_TOKEN)
+      .set("Authorization", NOT_EXISTS_TOKEN)
 
     expect(res.status).toBe(401)
     expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)

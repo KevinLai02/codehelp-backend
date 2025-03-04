@@ -1,6 +1,6 @@
 import Joi from "joi"
 import { countryCodes } from "~/utils/country"
-import { MENTOR_DISCIPLINES, MENTOR_SKILLS, MENTOR_TOOLS } from "./types"
+import { DAY, MENTOR_DISCIPLINES, MENTOR_SKILLS, MENTOR_TOOLS } from "./types"
 
 export const signUpSchema = Joi.object({
   body: Joi.object().keys({
@@ -49,5 +49,21 @@ export const searchSchema = Joi.object({
     keyword: Joi.string().min(1).max(30),
     page: Joi.number().min(1).required(),
     count: Joi.number().min(10).max(10).required(),
+  }),
+})
+
+const availableTimeItemSchema = Joi.object().keys({
+  day: Joi.string()
+    .valid(...Object.values(DAY))
+    .required(),
+  timeCode: Joi.array().max(24).items(Joi.number().min(1).max(24)).required(),
+})
+
+export const updateAvailableTimeSchema = Joi.object({
+  body: Joi.object().keys({
+    availableTimeList: Joi.array()
+      .required()
+      .max(7)
+      .items(availableTimeItemSchema),
   }),
 })
