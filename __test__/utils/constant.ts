@@ -79,6 +79,8 @@ export const NOT_EXISTS_MEMBER_TOKEN =
     { expiresIn: "30 day" },
   )
 
+export const TOKEN_START_WITH_BEARER = /^Bearer/
+
 export const addOneMentor = async (
   mentorData: IMentorModel,
 ): Promise<{ newMentorData: Mentor; newMentorId: string }> => {

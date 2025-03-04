@@ -5,14 +5,18 @@ import request from "supertest"
 import mentorRouter from "~/Mentor/mentor.router"
 import { MENTOR_DISCIPLINES, MENTOR_SKILLS, MENTOR_TOOLS } from "~/Mentor/types"
 import { RESPONSE_CODE } from "~/types"
-import { MENTOR_ONE, NOT_EXISTS_ID, addOneMentor } from "./utils/constant"
+import {
+  MENTOR_ONE,
+  NOT_EXISTS_ID,
+  TOKEN_START_WITH_BEARER,
+  addOneMentor,
+} from "./utils/constant"
 import { SQLite } from "./utils/sqlite.config"
 
 let server: Express
 let mentorId: string
 
 const sqlite = new SQLite()
-const tokenStartWithBearer = /^Bearer/
 
 const MENTOR_DATA = {
   userName: "testSignUpMentor",
@@ -75,7 +79,7 @@ describe("Mentor router POST: Mentor sign-up", () => {
     expect(res.status).toBe(200)
     expect(res.body.status).toBe("ok")
     expect(res.body.newMentor).toBeDefined()
-    expect(res.body.token).toMatch(tokenStartWithBearer)
+    expect(res.body.token).toMatch(TOKEN_START_WITH_BEARER)
     expect(res.body.password).toBeUndefined()
   })
 
