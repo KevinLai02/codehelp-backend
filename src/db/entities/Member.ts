@@ -1,68 +1,82 @@
-import { BaseEntity, Column, Entity, Index, OneToMany } from "typeorm"
+import {
+  BaseEntity,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from "typeorm"
+import { ColumnTypeAdapter } from "../utils/ColumnTypeAdapter"
+import { BookingMember } from "./BookingMember"
 import { Chatroom } from "./Chatroom"
 
-@Index("member_email_key", ["email"], { unique: true })
-@Index("member_pkey", ["id"], { unique: true })
 @Entity("member", { schema: "public" })
 export class Member extends BaseEntity {
-  @Column("uuid", {
-    primary: true,
-    name: "id",
-    default: () => "gen_random_uuid()",
+  @PrimaryGeneratedColumn("uuid")
+  id: string
+
+  @ColumnTypeAdapter("character varying", {
+    name: "user_name",
+    length: 30,
   })
-  id?: string
+  userName: string
 
-  @Column("character varying", { name: "user_name", length: 30 })
-  userName?: string
+  @ColumnTypeAdapter("text", { name: "email", unique: true })
+  email: string
 
-  @Column("text", { name: "email", unique: true })
-  email?: string
-
-  @Column("character varying", { name: "password", length: 72 })
+  @ColumnTypeAdapter("character varying", {
+    name: "password",
+    length: 72,
+  })
   password?: string
 
-  @Column("text", { name: "avatar" })
-  avatar?: string
+  @ColumnTypeAdapter("text", { name: "avatar" })
+  avatar: string
 
-  @Column("character", { name: "gender", length: 1 })
-  gender?: string
+  @ColumnTypeAdapter("character", { name: "gender", length: 1 })
+  gender: string
 
-  @Column("character", { name: "country", length: 2 })
-  country?: string
+  @ColumnTypeAdapter("character", { name: "country", length: 2 })
+  country: string
 
-  @Column("character varying", { name: "title", length: 100 })
-  title?: string
+  @ColumnTypeAdapter("character varying", { name: "title", length: 100 })
+  title: string
 
-  @Column("character varying", { name: "company", length: 100 })
-  company?: string
-
-  @Column("character", { name: "phone_number", length: 20 })
-  phoneNumber?: string
-
-  @Column("boolean", { name: "email_otp", default: () => "false" })
-  emailOtp?: boolean
-
-  @Column("text", { name: "introduction" })
-  introduction?: string
-
-  @Column("smallint", { name: "level" })
-  level?: number
-
-  @Column("jsonb", { name: "field_of_work" })
-  fieldOfWork?: object
-
-  @Column("timestamp without time zone", {
-    name: "created_at",
-    default: () => "now()",
+  @ColumnTypeAdapter("character varying", {
+    name: "company",
+    length: 100,
   })
-  createdAt?: Date
+  company: string
 
-  @Column("timestamp without time zone", {
-    name: "updated_at",
-    default: () => "now()",
-  })
-  updatedAt?: Date
+  @ColumnTypeAdapter("character", { name: "phone_number", length: 20 })
+  phoneNumber: string
+
+  @ColumnTypeAdapter("boolean", { name: "email_otp", default: false })
+  emailOtp: boolean
+
+  @ColumnTypeAdapter("text", { name: "introduction" })
+  introduction: string
+
+  @ColumnTypeAdapter("smallint", { name: "level" })
+  level: number
+
+  @ColumnTypeAdapter("jsonb", { name: "field_of_work" })
+  fieldOfWork: object
+
+  @CreateDateColumn()
+  created_at: Date
+
+  @UpdateDateColumn()
+  updated_at: Date
+
+  @OneToMany(() => BookingMember, (bookingMember) => bookingMember.member)
+  bookingMembers?: BookingMember[]
 
   @OneToMany(() => Chatroom, (chatroom) => chatroom.member)
   chatrooms?: Chatroom[]
+
+  toJSON() {
+    delete this.password
+    return this
+  }
 }

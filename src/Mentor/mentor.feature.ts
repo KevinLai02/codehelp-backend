@@ -1,17 +1,34 @@
 import bcrypt from "bcrypt"
 import { RESPONSE_CODE } from "~/types"
+import {
+  IAvailableTime,
+  IMentorDisciplines,
+  IMentorSkills,
+  IMentorTools,
+} from "./types"
 import { generateToken } from "~/utils/account"
-import { addMentor, findManyAndCount, findMentorBy } from "./mentor.model"
+import {
+  addMentor,
+  findManyAndCount,
+  findMentorBy,
+  updateAvailableTime,
+  addMentorDisciplines,
+  addMentorSkills,
+  addMentorTools,
+} from "./mentor.model"
 import { IKeywordPagination, IMentorRequestBody } from "~/Mentor/types"
+
 import { Mentor } from "~/db/entities/Mentor"
 import FeatureError from "~/utils/FeatureError"
 import { parseImageUrl, uploadFiles } from "~/utils/assetHelper"
+import { InsertResult } from "typeorm"
+import { addMentorIdToAvailableTimeList } from "./utils"
 
 export const save = async (
   data: IMentorRequestBody,
 ): Promise<{ newMentor: Mentor; token: string }> => {
   try {
-    const { email, password, avatar } = data
+    const { email, password, avatar, disciplines, tools, skills } = data
 
     const isEmailExist = await findMentorBy({ email })
     if (isEmailExist) {
@@ -32,10 +49,35 @@ export const save = async (
       password: encryptedPassword,
     })
 
-    const token = generateToken(newMentor)
-    delete newMentor.password
+    const mentorDisciplines: IMentorDisciplines[] = disciplines.map(
+      (disciplineName) => ({
+        mentorId: newMentor.id!,
+        discipline: disciplineName,
+      }),
+    )
 
-    return { newMentor, token }
+    const mentorSkills: IMentorSkills[] = skills.map((skillName) => ({
+      mentorId: newMentor.id!,
+      skill: skillName,
+    }))
+
+    const mentorTools: IMentorTools[] = tools.map((toolName) => ({
+      mentorId: newMentor.id!,
+      tool: toolName,
+    }))
+
+    await Promise.all([
+      addMentorDisciplines(mentorDisciplines),
+      addMentorSkills(mentorSkills),
+      addMentorTools(mentorTools),
+    ])
+
+    const newMentorData = await findMentorBy({ id: newMentor.id })
+
+    const token = generateToken(newMentorData!)
+    delete newMentorData!.password
+
+    return { newMentor: newMentorData!, token }
   } catch (error) {
     throw error
   }
@@ -69,6 +111,27 @@ export const getList = async ({
     const [mentorList, total] = await findManyAndCount({ count, skip, keyword })
 
     return { mentorList, total }
+  } catch (error) {
+    throw error
+  }
+}
+
+export const updateMentorAvailableTime = async ({
+  mentorId,
+  availableTimeList,
+}: {
+  mentorId: string
+  availableTimeList: IAvailableTime[]
+}): Promise<InsertResult> => {
+  try {
+    const newAvailableTimeList = addMentorIdToAvailableTimeList(
+      availableTimeList,
+      mentorId,
+    )
+
+    const result = await updateAvailableTime(newAvailableTimeList)
+
+    return result
   } catch (error) {
     throw error
   }

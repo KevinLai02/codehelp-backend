@@ -1,4 +1,9 @@
-import { save, getInfo, getList } from "./mentor.feature"
+import {
+  save,
+  getInfo,
+  getList,
+  updateMentorAvailableTime,
+} from "./mentor.feature"
 import { IApi, RESPONSE_CODE } from "~/types"
 import FeatureError from "~/utils/FeatureError"
 
@@ -73,6 +78,35 @@ export const getMentorList: IApi = async (req, res) => {
       status: "ok",
       mentorList,
       total,
+    })
+  } catch (error) {
+    if (error instanceof FeatureError) {
+      res.status(error.serverStatus).send({
+        code: error.code,
+        message: error.message,
+      })
+    } else {
+      res.status(500).send({
+        code: RESPONSE_CODE.UNKNOWN_ERROR,
+        message: error,
+      })
+      throw error
+    }
+  }
+}
+
+export const modifyAvailableTime: IApi = async (req, res) => {
+  try {
+    const { userId, availableTimeList } = req.body
+
+    const result = await updateMentorAvailableTime({
+      mentorId: userId,
+      availableTimeList,
+    })
+
+    res.status(200).send({
+      status: "ok",
+      message: "Update successfully",
     })
   } catch (error) {
     if (error instanceof FeatureError) {

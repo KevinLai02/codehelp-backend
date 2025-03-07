@@ -2,23 +2,21 @@ import bodyParser from "body-parser"
 import express, { Express } from "express"
 import request from "supertest"
 import { RESPONSE_CODE } from "~/types"
-import { DataBase } from "./utils/db.config"
-import { addMentor } from "../src/Mentor/mentor.model"
+import { SQLite } from "./utils/sqlite.config"
 import bcrypt from "bcrypt"
-import { MEMBER, MENTOR_ONE, MENTOR_TWO } from "./utils/constant"
+import { MEMBER, MENTOR_ONE, MENTOR_TWO, addOneMentor } from "./utils/constant"
 import { addMember } from "../src/Member/member.model"
 import { Member } from "~/db/entities/Member"
-import { Mentor } from "~/db/entities/Mentor"
 import { generateToken } from "~/utils/account"
 import jwt from "jsonwebtoken"
 import { add } from "~/Chatroom/chatroom.model"
 import messageRouter from "~/Message/message.router"
 
 let server: Express
-const DB = new DataBase()
+const sqlite = new SQLite()
 const CONTENT = "New message for the unit test."
 const NOT_EXISTS_ID = "09e7c567-05dd-4cb2-b789-df0344401f88"
-const NOT_EXISTS_MEMBER_TOKEN =
+const NOT_EXISTS_TOKEN =
   "Bearer " +
   jwt.sign(
     {
@@ -29,19 +27,16 @@ const NOT_EXISTS_MEMBER_TOKEN =
     String(process.env.TOKEN),
     { expiresIn: "30 day" },
   )
-let mentor: Mentor
-let mentorToken: string
 let member: Member
 let memberToken: string
 let chatroomId: string
 
 let secondMentorToken: string
 // For testing when the user is not in chatroom.
-let messageId: string
 
 beforeAll(async () => {
   try {
-    await DB.setup()
+    await sqlite.setup()
     server = express()
     server.use(bodyParser.json())
     server.use(
@@ -50,12 +45,8 @@ beforeAll(async () => {
       }),
     )
     server.use("/chatroom", [messageRouter])
-    const encryptedMentorPassword = await bcrypt.hash(MENTOR_ONE.password, 10)
-    mentor = await addMentor({
-      ...MENTOR_ONE,
-      password: encryptedMentorPassword,
-    })
-    mentorToken = generateToken(mentor)
+
+    const { newMentorData: mentorOne } = await addOneMentor(MENTOR_ONE)
 
     const encryptedMemberPassword = await bcrypt.hash(MEMBER.password, 10)
     member = await addMember({
@@ -64,18 +55,11 @@ beforeAll(async () => {
     })
     memberToken = generateToken(member)
 
-    const encryptedSecondMentorPassword = await bcrypt.hash(
-      MENTOR_TWO.password,
-      10,
-    )
-    const secondMentor = await addMentor({
-      ...MENTOR_TWO,
-      password: encryptedSecondMentorPassword,
-    })
-    secondMentorToken = generateToken(secondMentor)
+    const { newMentorData: mentorTwo } = await addOneMentor(MENTOR_TWO)
+    secondMentorToken = generateToken(mentorTwo)
 
     const chatroom = await add({
-      mentor: mentor,
+      mentor: mentorOne,
       member: member,
     })
     chatroomId = chatroom.id!
@@ -86,7 +70,7 @@ beforeAll(async () => {
 })
 
 afterAll(() => {
-  DB.destroy()
+  sqlite.destroy()
 })
 
 describe("Message router POST: Create a message", () => {
@@ -115,7 +99,7 @@ describe("Message router POST: Create a message", () => {
       .send({
         content: CONTENT,
       })
-      .set("Authorization", NOT_EXISTS_MEMBER_TOKEN)
+      .set("Authorization", NOT_EXISTS_TOKEN)
 
     expect(res.status).toBe(401)
     expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)

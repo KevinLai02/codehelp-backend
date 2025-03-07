@@ -7,6 +7,15 @@ export interface ILoginResult {
   token: string
 }
 
+export interface IGetUserInfoResult {
+  identity: USER_IDENTITY
+  user: Mentor | Member
+}
+
+export interface IGetUserInfo {
+  userId: string
+}
+
 export enum USER_IDENTITY {
   MENTOR = "mentor",
   MEMBER = "member",

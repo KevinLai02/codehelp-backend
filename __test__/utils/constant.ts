@@ -1,5 +1,17 @@
+import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken"
 import { IMemberModel } from "~/Member/types"
-import { IMentorModel } from "~/Mentor/types"
+import { IAvailableTime, IMentorModel } from "~/Mentor/types"
+
+import {
+  addMentor,
+  addMentorDisciplines,
+  addMentorSkills,
+  addMentorTools,
+  findMentorBy,
+} from "~/Mentor/mentor.model"
+import { MENTOR_DISCIPLINES, MENTOR_SKILLS, MENTOR_TOOLS } from "~/Mentor/types"
+import { Mentor } from "~/db/entities/Mentor"
 
 const MENTOR_DETAIL = {
   password: "123456789",
@@ -15,9 +27,9 @@ const MENTOR_DETAIL = {
   primaryExpertise: "123",
   secondaryExpertise: "123",
   tertiaryExpertise: "123",
-  disciplines: ["123"],
-  skills: ["123"],
-  tools: ["123"],
+  disciplines: [MENTOR_DISCIPLINES.BIOLOGY],
+  skills: [MENTOR_SKILLS.ADOBE_PHOTOSHOP],
+  tools: [MENTOR_TOOLS.ADOBE_ILLUSTRATOR],
   quickReply: false,
   education: "高雄科技大學-海事資訊科技系",
 }
@@ -52,3 +64,82 @@ export const MEMBER: IMemberModel = {
   email: "member@gmail.com",
   ...MEMBER_DETAIL,
 }
+
+export const AVAILABLE_TIME: IAvailableTime[] = [
+  {
+    day: "MON",
+    timeCode: [1, 2, 3, 4, 5, 7, 8, 9, 10],
+  },
+  {
+    day: "TUE",
+    timeCode: [9, 10, 11, 12, 13, 14],
+  },
+  {
+    day: "WED",
+    timeCode: [15, 16, 17, 18],
+  },
+  {
+    day: "THU",
+    timeCode: [5, 6, 7, 8, 9, 10],
+  },
+]
+export const NOT_EXISTS_ID = "09e7c567-05dd-4cb2-b789-df0344401f88"
+
+export const NOT_EXISTS_TOKEN =
+  "Bearer " +
+  jwt.sign(
+    {
+      userName: "none",
+      email: "none",
+      id: NOT_EXISTS_ID,
+    },
+    String(process.env.TOKEN),
+    { expiresIn: "30 day" },
+  )
+
+export const TOKEN_START_WITH_BEARER = /^Bearer/
+
+export const addOneMentor = async (
+  mentorData: IMentorModel,
+): Promise<{ newMentorData: Mentor; newMentorId: string }> => {
+  const encryptedMentorPassword = await bcrypt.hash(mentorData.password, 10)
+  const mentor = await addMentor({
+    ...mentorData,
+    password: encryptedMentorPassword,
+  })
+
+  await Promise.all([
+    addMentorDisciplines([
+      {
+        mentorId: mentor.id,
+        discipline: mentorData.disciplines[0],
+      },
+    ]),
+    addMentorSkills([
+      {
+        mentorId: mentor.id,
+        skill: mentorData.skills[0],
+      },
+    ]),
+    addMentorTools([
+      {
+        mentorId: mentor.id,
+        tool: mentorData.tools[0],
+      },
+    ]),
+  ])
+  const newMentorData = await findMentorBy({ id: mentor.id })
+
+  return { newMentorData: newMentorData!, newMentorId: mentor.id }
+}
+export const NOT_EXISTS_MEMBER_TOKEN =
+  "Bearer " +
+  jwt.sign(
+    {
+      userName: "none",
+      email: "none",
+      id: "09e7c567-05dd-4cb2-b789-df0344401f88",
+    },
+    String(process.env.TOKEN),
+    { expiresIn: "30 day" },
+  )

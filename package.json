@@ -24,6 +24,7 @@
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "cross-var": "^1.1.0",
+    "date-fns": "^4.1.0",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-validation": "^4.1.1",
@@ -66,5 +67,6 @@
     "tsc-alias": "^1.8.10",
     "typescript": "^5.4.5",
     "typescript-eslint": "^7.13.1"
-  }
+  },
+  "packageManager": "yarn@4.7.0"
 }
