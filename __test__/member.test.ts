@@ -8,7 +8,6 @@ import {
   NOT_EXISTS_ID,
   TOKEN_START_WITH_BEARER,
 } from "./utils/constant"
-import { generateNotExistsToken } from "./utils/generateNotExistsToken"
 import { Member } from "~/db/entities/Member"
 import { generateToken } from "~/utils/account"
 import request from "supertest"
@@ -17,7 +16,6 @@ import { RESPONSE_CODE } from "~/types"
 
 let server: Express
 const sqlite = new SQLite()
-const NOT_EXISTS_TOKEN = generateNotExistsToken()
 let member: Member
 let memberToken: string
 
