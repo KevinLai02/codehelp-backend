@@ -29,7 +29,8 @@ export const addMember = (data: IMemberModel) => {
   newMember.phoneNumber = phoneNumber
   newMember.introduction = introduction
   newMember.level = level
-  newMember.fieldOfWork = fieldOfWork
+  newMember.fieldOfWork =
+    process.env.NODE_ENV === "test" ? JSON.stringify(fieldOfWork) : fieldOfWork
   return newMember.save()
 }
 

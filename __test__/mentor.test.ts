@@ -9,9 +9,9 @@ import {
   MENTOR_ONE,
   NOT_EXISTS_ID,
   TOKEN_START_WITH_BEARER,
-  addOneMentor,
 } from "./utils/constant"
 import { SQLite } from "./utils/sqlite.config"
+import { addOneMentor } from "./utils/addOneMentor"
 
 let server: Express
 let mentorId: string

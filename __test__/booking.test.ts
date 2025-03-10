@@ -6,13 +6,11 @@ import { SQLite } from "./utils/sqlite.config"
 import { updateAvailableTime } from "../src/Mentor/mentor.model"
 import bcrypt from "bcrypt"
 import {
-  addOneMentor,
   AVAILABLE_TIME,
   MEMBER,
   MENTOR_ONE,
   MENTOR_TWO,
   NOT_EXISTS_ID,
-  NOT_EXISTS_TOKEN,
 } from "./utils/constant"
 import { addMember } from "../src/Member/member.model"
 import { Member } from "~/db/entities/Member"
@@ -23,6 +21,8 @@ import bookingRouter from "~/Booking/booking.router"
 import { addMentorIdToAvailableTimeList } from "~/Mentor/utils"
 import { BookingMember } from "~/db/entities/BookingMember"
 import { format } from "date-fns"
+import { addOneMentor } from "./utils/addOneMentor"
+import { generateNotExistsToken } from "./utils/generateNotExistsToken"
 
 let server: Express
 const sqlite = new SQLite()
@@ -39,6 +39,7 @@ const BOOKING_DATA = {
   BOOKING_TIME: "2025/03/04 11:00",
   DURATION: 30,
 }
+const NOT_EXISTS_TOKEN = generateNotExistsToken()
 beforeAll(async () => {
   try {
     await sqlite.setup()

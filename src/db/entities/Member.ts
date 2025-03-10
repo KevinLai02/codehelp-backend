@@ -61,7 +61,7 @@ export class Member extends BaseEntity {
   level: number
 
   @ColumnTypeAdapter("jsonb", { name: "field_of_work" })
-  fieldOfWork: object
+  fieldOfWork: object | string
 
   @CreateDateColumn()
   created_at: Date

@@ -1,6 +1,6 @@
 import { IApi, RESPONSE_CODE } from "~/types"
 import FeatureError from "~/utils/FeatureError"
-import { save } from "./member.feature"
+import { getMember, save } from "./member.feature"
 
 export const signUp: IApi = async (req, res) => {
   try {
@@ -22,6 +22,31 @@ export const signUp: IApi = async (req, res) => {
         message: "Please upload an avatar",
       })
     }
+  } catch (error) {
+    if (error instanceof FeatureError) {
+      res.status(error.serverStatus).send({
+        code: error.code,
+        message: error.message,
+      })
+    } else {
+      res.status(500).send({
+        code: RESPONSE_CODE.UNKNOWN_ERROR,
+        message: error,
+      })
+      throw error
+    }
+  }
+}
+
+export const getMemberController: IApi = async (req, res) => {
+  try {
+    const { memberId } = req.params
+    const member = await getMember(memberId)
+
+    res.status(200).send({
+      status: "ok",
+      member,
+    })
   } catch (error) {
     if (error instanceof FeatureError) {
       res.status(error.serverStatus).send({
