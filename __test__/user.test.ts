@@ -5,16 +5,12 @@ import request from "supertest"
 import { addMember } from "../src/Member/member.model"
 import userRouter from "~/User/user.router"
 import { RESPONSE_CODE } from "~/types"
-import {
-  MEMBER,
-  MENTOR_ONE,
-  NOT_EXISTS_MEMBER_TOKEN,
-  TOKEN_START_WITH_BEARER,
-  addOneMentor,
-} from "./utils/constant"
+import { MEMBER, MENTOR_ONE, TOKEN_START_WITH_BEARER } from "./utils/constant"
 import { Member } from "~/db/entities/Member"
 import { SQLite } from "./utils/sqlite.config"
 import { generateToken } from "~/utils/account"
+import { addOneMentor } from "./utils/addOneMentor"
+import { generateNotExistsToken } from "./utils/generateNotExistsToken"
 
 let server: Express
 let mentorToken: string
@@ -31,7 +27,7 @@ const NOT_EXISTS_LOGIN_DATA = {
 const WRONG_PASSWORD = "wrong123"
 
 const sqlite = new SQLite()
-
+const NOT_EXISTS_TOKEN = generateNotExistsToken()
 beforeAll(async () => {
   try {
     await sqlite.setup()
@@ -129,7 +125,7 @@ describe("User router GET: User Info", () => {
   it("(x) Should return an error with response code 4002 when the user is not found.", async () => {
     const res = await request(server)
       .get("/user/info")
-      .set("Authorization", NOT_EXISTS_MEMBER_TOKEN)
+      .set("Authorization", NOT_EXISTS_TOKEN)
 
     expect(res.status).toBe(401)
     expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)

@@ -1,17 +1,6 @@
-import bcrypt from "bcrypt"
-import jwt from "jsonwebtoken"
 import { IMemberModel } from "~/Member/types"
 import { IAvailableTime, IMentorModel } from "~/Mentor/types"
-
-import {
-  addMentor,
-  addMentorDisciplines,
-  addMentorSkills,
-  addMentorTools,
-  findMentorBy,
-} from "~/Mentor/mentor.model"
 import { MENTOR_DISCIPLINES, MENTOR_SKILLS, MENTOR_TOOLS } from "~/Mentor/types"
-import { Mentor } from "~/db/entities/Mentor"
 
 const MENTOR_DETAIL = {
   password: "123456789",
@@ -85,61 +74,4 @@ export const AVAILABLE_TIME: IAvailableTime[] = [
 ]
 export const NOT_EXISTS_ID = "09e7c567-05dd-4cb2-b789-df0344401f88"
 
-export const NOT_EXISTS_TOKEN =
-  "Bearer " +
-  jwt.sign(
-    {
-      userName: "none",
-      email: "none",
-      id: NOT_EXISTS_ID,
-    },
-    String(process.env.TOKEN),
-    { expiresIn: "30 day" },
-  )
-
 export const TOKEN_START_WITH_BEARER = /^Bearer/
-
-export const addOneMentor = async (
-  mentorData: IMentorModel,
-): Promise<{ newMentorData: Mentor; newMentorId: string }> => {
-  const encryptedMentorPassword = await bcrypt.hash(mentorData.password, 10)
-  const mentor = await addMentor({
-    ...mentorData,
-    password: encryptedMentorPassword,
-  })
-
-  await Promise.all([
-    addMentorDisciplines([
-      {
-        mentorId: mentor.id,
-        discipline: mentorData.disciplines[0],
-      },
-    ]),
-    addMentorSkills([
-      {
-        mentorId: mentor.id,
-        skill: mentorData.skills[0],
-      },
-    ]),
-    addMentorTools([
-      {
-        mentorId: mentor.id,
-        tool: mentorData.tools[0],
-      },
-    ]),
-  ])
-  const newMentorData = await findMentorBy({ id: mentor.id })
-
-  return { newMentorData: newMentorData!, newMentorId: mentor.id }
-}
-export const NOT_EXISTS_MEMBER_TOKEN =
-  "Bearer " +
-  jwt.sign(
-    {
-      userName: "none",
-      email: "none",
-      id: "09e7c567-05dd-4cb2-b789-df0344401f88",
-    },
-    String(process.env.TOKEN),
-    { expiresIn: "30 day" },
-  )

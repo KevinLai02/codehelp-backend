@@ -5,13 +5,15 @@ import { RESPONSE_CODE } from "~/types"
 import { SQLite } from "./utils/sqlite.config"
 import chatroomRouter from "../src/Chatroom/chatroom.router"
 import bcrypt from "bcrypt"
-import { MEMBER, MENTOR_ONE, MENTOR_TWO, addOneMentor } from "./utils/constant"
+import { MEMBER, MENTOR_ONE, MENTOR_TWO } from "./utils/constant"
 import { addMember } from "../src/Member/member.model"
 import { Member } from "~/db/entities/Member"
 import { Mentor } from "~/db/entities/Mentor"
 import { generateToken } from "~/utils/account"
 import { add } from "~/Chatroom/chatroom.model"
-import { NOT_EXISTS_ID, NOT_EXISTS_TOKEN } from "./utils/constant"
+import { NOT_EXISTS_ID } from "./utils/constant"
+import { addOneMentor } from "./utils/addOneMentor"
+import { generateNotExistsToken } from "./utils/generateNotExistsToken"
 
 let server: Express
 const sqlite = new SQLite()
@@ -24,7 +26,7 @@ let chatroomId: string
 // For create the second chatroom.
 let secondChatroomId: string
 // For testing when the user(mentor) is not in chatroom(second chatroom).
-
+const NOT_EXISTS_TOKEN = generateNotExistsToken()
 beforeAll(async () => {
   try {
     await sqlite.setup()

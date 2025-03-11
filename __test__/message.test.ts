@@ -4,13 +4,14 @@ import request from "supertest"
 import { RESPONSE_CODE } from "~/types"
 import { SQLite } from "./utils/sqlite.config"
 import bcrypt from "bcrypt"
-import { MEMBER, MENTOR_ONE, MENTOR_TWO, addOneMentor } from "./utils/constant"
+import { MEMBER, MENTOR_ONE, MENTOR_TWO } from "./utils/constant"
 import { addMember } from "../src/Member/member.model"
 import { Member } from "~/db/entities/Member"
 import { generateToken } from "~/utils/account"
 import jwt from "jsonwebtoken"
 import { add } from "~/Chatroom/chatroom.model"
 import messageRouter from "~/Message/message.router"
+import { addOneMentor } from "./utils/addOneMentor"
 
 let server: Express
 const sqlite = new SQLite()

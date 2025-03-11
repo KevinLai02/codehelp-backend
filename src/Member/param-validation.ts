@@ -20,3 +20,9 @@ export const signUpSchema = Joi.object({
     fieldOfWork: Joi.array().required().min(1).max(5),
   }),
 })
+
+export const getMemberInfoSchema = Joi.object({
+  body: Joi.object().keys({
+    memberId: Joi.string().uuid().required(),
+  }),
+})

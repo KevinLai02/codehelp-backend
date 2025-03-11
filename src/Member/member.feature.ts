@@ -39,3 +39,19 @@ export const save = async (
     throw error
   }
 }
+
+export const getMember = async (memberId: string) => {
+  try {
+    const member = await findMemberBy({ id: memberId })
+    if (!member) {
+      throw new FeatureError(
+        403,
+        RESPONSE_CODE.TARGET_NOT_EXISTS,
+        "Member not found.",
+      )
+    }
+    return member
+  } catch (error) {
+    throw error
+  }
+}
