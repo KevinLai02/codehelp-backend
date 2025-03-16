@@ -4,30 +4,19 @@ import request from "supertest"
 import { RESPONSE_CODE } from "~/types"
 import { SQLite } from "./utils/sqlite.config"
 import bcrypt from "bcrypt"
-import { MEMBER, MENTOR_ONE, MENTOR_TWO } from "./utils/constant"
+import { MEMBER, MENTOR_ONE, MENTOR_TWO, NOT_EXISTS_ID } from "./utils/constant"
 import { addMember } from "../src/Member/member.model"
 import { Member } from "~/db/entities/Member"
 import { generateToken } from "~/utils/account"
-import jwt from "jsonwebtoken"
 import { add } from "~/Chatroom/chatroom.model"
 import messageRouter from "~/Message/message.router"
 import { addOneMentor } from "./utils/addOneMentor"
+import { generateNotExistsToken } from "./utils/generateNotExistsToken"
 
 let server: Express
 const sqlite = new SQLite()
 const CONTENT = "New message for the unit test."
-const NOT_EXISTS_ID = "09e7c567-05dd-4cb2-b789-df0344401f88"
-const NOT_EXISTS_TOKEN =
-  "Bearer " +
-  jwt.sign(
-    {
-      userName: "none",
-      email: "none",
-      id: NOT_EXISTS_ID,
-    },
-    String(process.env.TOKEN),
-    { expiresIn: "30 day" },
-  )
+const NOT_EXISTS_TOKEN = generateNotExistsToken()
 let member: Member
 let memberToken: string
 let chatroomId: string
@@ -168,17 +157,81 @@ describe("Message router POST: Create a message", () => {
  *
  */
 
+describe("Message Router GET: Message Record", () => {
+  it("(o) Should return message records when the request is successful.", async () => {
+    const res = await request(server)
+      .get(`/chatroom/${chatroomId}/message/record`)
+      .query({ page: 1, count: 10 })
+      .set("Authorization", memberToken)
+
+    expect(res.status).toBe(200)
+    expect(res.body.status).toBe("ok")
+    expect(res.body.total).toBe(1)
+    expect(res.body.messages.length).toBe(1)
+  })
+
+  it("(x) Should return an error with response code 4005 when the user is not in this chatroom.", async () => {
+    const res = await request(server)
+      .get(`/chatroom/${chatroomId}/message/record`)
+      .query({ page: 1, count: 10 })
+      .set("Authorization", secondMentorToken)
+
+    expect(res.status).toBe(403)
+    expect(res.body.code).toBe(RESPONSE_CODE.NO_PERMISSION)
+  })
+
+  it("(x) Should return an error with response code 4002 when the user is not found.", async () => {
+    const res = await request(server)
+      .get(`/chatroom/${chatroomId}/message/record`)
+      .query({ page: 1, count: 10 })
+      .set("Authorization", NOT_EXISTS_TOKEN)
+
+    expect(res.status).toBe(401)
+    expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)
+  })
+
+  it("(x) Should return an error with response code 4001 when the quest body is missing the required data.", async () => {
+    const res = await request(server)
+      .get(`/chatroom/${chatroomId}/message/record`)
+      .set("Authorization", memberToken)
+
+    expect(res.status).toBe(422)
+    expect(res.body.code).toBe(RESPONSE_CODE.VALIDATE_ERROR)
+  })
+
+  it("(x) Should return an error with response status 404 when query params 'chatroomId' is missing.", async () => {
+    const res = await request(server)
+      .get(`/chatroom/message/record`)
+      .query({ page: 1, count: 10 })
+      .set("Authorization", memberToken)
+
+    expect(res.status).toBe(404)
+  })
+
+  it("(x) Should return an error with response code 4003 when the chatroom is not exists.", async () => {
+    const res = await request(server)
+      .get(`/chatroom/${NOT_EXISTS_ID}/message/record`)
+      .query({ page: 1, count: 10 })
+      .set("Authorization", memberToken)
+
+    expect(res.status).toBe(403)
+    expect(res.body.code).toBe(RESPONSE_CODE.NO_PERMISSION)
+  })
+})
+
 /*
- * [DELETE] Delete the message
+ * [GET] Message Record
  *
- * (o) Should return the status with 'ok' when the request is successful.
+ * (o) Should return message records when the request is successful.
  *
- * (x) Should return an error with response code 4004 when the chatroom is not found.
+ * (x) Should return an error with response code 4005 when the user is not in this chatroom.
  *
- * (x) Should return an error with response code 4004 when the message owner is not the user.
+ * (x) Should return an error with response code 4002 when the user is not found.
  *
- * (x) Should return an error with response code 4004 when the user is not in this chatroom.
+ * (x) Should return an error with response code 4001 when the quest body is missing the required data.
  *
- * (x) Should return an error with response status 404 when query params 'chatroomId' and 'messageId' is missing.
+ * (x) Should return an error with response status 404 when query params 'chatroomId' is missing.
+ *
+ * (x) Should return an error with response code 4003 when the chatroom is not exists.
  *
  */

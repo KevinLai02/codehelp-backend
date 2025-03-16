@@ -1,6 +1,7 @@
 import FeatureError from "~/utils/FeatureError"
 import { IApi, RESPONSE_CODE } from "~/types"
-import { addMessage } from "./message.feature"
+import { addMessage, getMessageRecords } from "./message.feature"
+import errorHandler from "~/utils/errorHandler"
 
 export const newMessage: IApi = async (req, res) => {
   try {
@@ -26,5 +27,28 @@ export const newMessage: IApi = async (req, res) => {
       })
       throw error
     }
+  }
+}
+
+export const getMessageRecordsController: IApi = async (req, res) => {
+  try {
+    const { userId } = req.body
+    const { chatroomId } = req.params
+    const { page, count } = req.query
+
+    const [messages, total] = await getMessageRecords({
+      userId,
+      chatroomId,
+      page: Number(page),
+      count: Number(count),
+    })
+
+    res.status(200).send({
+      status: "ok",
+      messages,
+      total,
+    })
+  } catch (error) {
+    errorHandler(res, error)
   }
 }
