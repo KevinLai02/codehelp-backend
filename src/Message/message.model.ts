@@ -27,5 +27,6 @@ export const findManyAndCount = ({
     .where("message.chatroom = :chatroomId", { chatroomId })
     .skip(skip)
     .take(count)
+    .orderBy("message.created_at", "DESC")
     .getManyAndCount()
 }
