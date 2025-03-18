@@ -1,5 +1,6 @@
 import { Chatroom } from "~/db/entities/Chatroom"
 import { Message } from "~/db/entities/Message"
+import { IGetMessageRecordsModel } from "./types"
 
 export const addOne = ({
   chatroom,
@@ -15,4 +16,17 @@ export const addOne = ({
   newMessage.userId = userId
   newMessage.content = content
   return newMessage.save()
+}
+
+export const findManyAndCount = ({
+  chatroomId,
+  skip,
+  count,
+}: IGetMessageRecordsModel) => {
+  return Message.createQueryBuilder("message")
+    .where("message.chatroom = :chatroomId", { chatroomId })
+    .skip(skip)
+    .take(count)
+    .orderBy("message.created_at", "DESC")
+    .getManyAndCount()
 }
