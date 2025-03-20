@@ -38,7 +38,7 @@ export const WebRTCSocket = (
 
   socket.on("sendMessage", (messageData) => {
     const { roomId } = messageData
-    socket.to(roomId).emit("receiveMessage", messageData)
+    io.to(roomId).emit("receiveMessage", messageData)
   })
 
   socket.on("disconnect", () => {
