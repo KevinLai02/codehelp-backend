@@ -70,7 +70,9 @@ export interface IMessageData {
     avatar: string
   }
   roomId: string
-  message: string
+  content: string
+  created_at: string
+  type: number
 }
 
 export interface IApi {
