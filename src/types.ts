@@ -63,6 +63,7 @@ export interface ClientToServerEvents {
 }
 
 export interface IMessageData {
+  id: string
   sender: {
     id: string
     userName: string
