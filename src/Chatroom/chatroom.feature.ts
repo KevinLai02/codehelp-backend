@@ -38,19 +38,15 @@ export const save = async ({
       )
     }
 
-    const isChatroomExists = await checkIsChatroomExists({ memberId, mentorId })
+    const chatroom = await checkIsChatroomExists({ memberId, mentorId })
 
-    if (isChatroomExists) {
-      throw new FeatureError(
-        403,
-        RESPONSE_CODE.DATA_DUPLICATE,
-        `${mentor.userName} and ${member.userName} already have a chatroom`,
-      )
+    if (chatroom) {
+      return chatroom.id
     }
 
     const newChatroom = await add({ mentor, member })
 
-    return newChatroom.id!
+    return newChatroom.id
   } catch (error) {
     throw error
   }
