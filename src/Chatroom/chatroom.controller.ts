@@ -1,6 +1,6 @@
-import FeatureError from "~/utils/FeatureError"
 import { getInfo, getList, save, remove } from "./chatroom.feature"
-import { IApi, RESPONSE_CODE } from "~/types"
+import { IApi } from "~/types"
+import errorHandler from "~/utils/errorHandler"
 
 export const createChatroom: IApi = async (req, res) => {
   try {
@@ -13,18 +13,7 @@ export const createChatroom: IApi = async (req, res) => {
       status: "ok",
     })
   } catch (error) {
-    if (error instanceof FeatureError) {
-      res.status(error.serverStatus).send({
-        code: error.code,
-        message: error.message,
-      })
-    } else {
-      res.status(500).send({
-        code: RESPONSE_CODE.UNKNOWN_ERROR,
-        message: error,
-      })
-      throw error
-    }
+    errorHandler(res, error)
   }
 }
 
@@ -40,18 +29,7 @@ export const getChatroom: IApi = async (req, res) => {
       status: "ok",
     })
   } catch (error) {
-    if (error instanceof FeatureError) {
-      res.status(error.serverStatus).send({
-        code: error.code,
-        message: error.message,
-      })
-    } else {
-      res.status(500).send({
-        code: RESPONSE_CODE.UNKNOWN_ERROR,
-        message: error,
-      })
-      throw error
-    }
+    errorHandler(res, error)
   }
 }
 
@@ -72,18 +50,7 @@ export const getChatroomList: IApi = async (req, res) => {
       status: "ok",
     })
   } catch (error) {
-    if (error instanceof FeatureError) {
-      res.status(error.serverStatus).send({
-        code: error.code,
-        message: error.message,
-      })
-    } else {
-      res.status(500).send({
-        code: RESPONSE_CODE.UNKNOWN_ERROR,
-        message: error,
-      })
-      throw error
-    }
+    errorHandler(res, error)
   }
 }
 
@@ -99,17 +66,6 @@ export const deleteChatroom: IApi = async (req, res) => {
       message: `Chatroom ${chatroomId} is deleted`,
     })
   } catch (error) {
-    if (error instanceof FeatureError) {
-      res.status(error.serverStatus).send({
-        code: error.code,
-        message: error.message,
-      })
-    } else {
-      res.status(500).send({
-        code: RESPONSE_CODE.UNKNOWN_ERROR,
-        message: error,
-      })
-      throw error
-    }
+    errorHandler(res, error)
   }
 }

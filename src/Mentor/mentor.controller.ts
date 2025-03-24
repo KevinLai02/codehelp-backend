@@ -4,8 +4,8 @@ import {
   getList,
   updateMentorAvailableTime,
 } from "./mentor.feature"
-import { IApi, RESPONSE_CODE } from "~/types"
-import FeatureError from "~/utils/FeatureError"
+import { IApi } from "~/types"
+import errorHandler from "~/utils/errorHandler"
 
 export const signUp: IApi = async (req, res) => {
   try {
@@ -24,18 +24,7 @@ export const signUp: IApi = async (req, res) => {
       token,
     })
   } catch (error) {
-    if (error instanceof FeatureError) {
-      res.status(error.serverStatus).send({
-        code: error.code,
-        message: error.message,
-      })
-    } else {
-      res.status(500).send({
-        code: RESPONSE_CODE.UNKNOWN_ERROR,
-        message: error,
-      })
-      throw error
-    }
+    errorHandler(res, error)
   }
 }
 
@@ -49,18 +38,7 @@ export const getMentorInfo: IApi = async (req, res) => {
       mentor,
     })
   } catch (error) {
-    if (error instanceof FeatureError) {
-      res.status(error.serverStatus).send({
-        code: error.code,
-        message: error.message,
-      })
-    } else {
-      res.status(500).send({
-        code: RESPONSE_CODE.UNKNOWN_ERROR,
-        message: error,
-      })
-      throw error
-    }
+    errorHandler(res, error)
   }
 }
 
@@ -80,18 +58,7 @@ export const getMentorList: IApi = async (req, res) => {
       total,
     })
   } catch (error) {
-    if (error instanceof FeatureError) {
-      res.status(error.serverStatus).send({
-        code: error.code,
-        message: error.message,
-      })
-    } else {
-      res.status(500).send({
-        code: RESPONSE_CODE.UNKNOWN_ERROR,
-        message: error,
-      })
-      throw error
-    }
+    errorHandler(res, error)
   }
 }
 
@@ -109,17 +76,6 @@ export const modifyAvailableTime: IApi = async (req, res) => {
       message: "Update successfully",
     })
   } catch (error) {
-    if (error instanceof FeatureError) {
-      res.status(error.serverStatus).send({
-        code: error.code,
-        message: error.message,
-      })
-    } else {
-      res.status(500).send({
-        code: RESPONSE_CODE.UNKNOWN_ERROR,
-        message: error,
-      })
-      throw error
-    }
+    errorHandler(res, error)
   }
 }
