@@ -82,6 +82,19 @@ describe("Chatroom router POST: Create a chatroom", () => {
     chatroomId = res.body.chatroomId
   })
 
+  it("(o) Should return the chatroom id when the users already have a chatroom.", async () => {
+    const res = await request(server)
+      .post("/chatroom/create")
+      .send({
+        mentorId: mentor.id,
+      })
+      .set("Authorization", memberToken)
+
+    expect(res.status).toBe(200)
+    expect(res.body.chatroomId).toBeDefined()
+    expect(res.body.status).toBe("ok")
+  })
+
   it("(x) Should return an error with response code 4002 when the mentor is not found.", async () => {
     const res = await request(server)
       .post("/chatroom/create")
@@ -106,18 +119,6 @@ describe("Chatroom router POST: Create a chatroom", () => {
     expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)
   })
 
-  it("(x) Should return an error with response code 4003 when the users already have a chatroom.", async () => {
-    const res = await request(server)
-      .post("/chatroom/create")
-      .send({
-        mentorId: mentor.id,
-      })
-      .set("Authorization", memberToken)
-
-    expect(res.status).toBe(403)
-    expect(res.body.code).toBe(RESPONSE_CODE.DATA_DUPLICATE)
-  })
-
   it("(x) Should return an error with response code 4001 when the request body is missing the required data.", async () => {
     const res = await request(server)
       .post("/chatroom/create")
@@ -133,11 +134,11 @@ describe("Chatroom router POST: Create a chatroom", () => {
  *
  * (o) Should return the chatroom id when the request is successful.
  *
+ * (o) Should return an error with response code 4003 when the users already have a chatroom.
+ *
  * (x) Should return an error with response code 4002 when the mentor is not found.
  *
  * (x) Should return an error with response code 4002 when the member is not found.
- *
- * (x) Should return an error with response code 4003 when the users already have a chatroom.
  *
  * (x) Should return an error with response code 4001 when the request body is missing the required data.
  */

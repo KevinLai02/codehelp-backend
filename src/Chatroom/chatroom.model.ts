@@ -27,7 +27,7 @@ export const checkIsChatroomExists = async ({
     )
     .select(["chatroom.id"])
     .getOne()
-  return !!chatroom
+  return chatroom
 }
 
 export const findOneBy = async ({
