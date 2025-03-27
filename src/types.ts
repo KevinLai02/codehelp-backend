@@ -64,14 +64,14 @@ export interface ClientToServerEvents {
 
 export interface IMessageData {
   id: string
-  sender: {
+  user: {
     id: string
     userName: string
     avatar: string
   }
   roomId: string
   content: string
-  created_at: string
+  createdAt: string
   type: number
 }
 
