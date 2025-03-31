@@ -8,11 +8,13 @@ import { MentorTools } from "~/db/entities/MentorTools"
 import testDataSource from "~/db/testDataSource"
 import {
   IMentorDisciplines,
+  IMentorInfo,
   IMentorModel,
   IMentorSkills,
   IMentorTools,
   IUpdateAvailableTime,
 } from "./types"
+import { IUpdateAvatarModel } from "~/User/types"
 
 export const addMentor = async (data: IMentorModel) => {
   const {
@@ -155,4 +157,39 @@ export const addMentorTools = async (mentorToolsList: IMentorTools[]) => {
     .into(MentorTools)
     .values(mentorToolsList)
     .execute()
+}
+
+export const updateMentor = ({
+  userId,
+  data: { linkedInURL, ...data },
+}: {
+  userId: string
+  data: IMentorInfo
+}) => {
+  return Mentor.update({ id: userId }, { ...data, url: linkedInURL })
+}
+
+export const removeMentorDisciplines = ({ userId }: { userId: string }) => {
+  return MentorDisciplines.createQueryBuilder("disciplines")
+    .delete()
+    .where("mentor_id = :userId", { userId })
+    .execute()
+}
+
+export const removeMentorSkills = ({ userId }: { userId: string }) => {
+  return MentorSkills.createQueryBuilder("skills")
+    .delete()
+    .where("mentor_id = :userId", { userId })
+    .execute()
+}
+
+export const removeMentorTools = ({ userId }: { userId: string }) => {
+  return MentorTools.createQueryBuilder("tools")
+    .delete()
+    .where("mentor_id = :userId", { userId })
+    .execute()
+}
+
+export const updateMentorAvatar = ({ userId, avatar }: IUpdateAvatarModel) => {
+  return Mentor.update({ id: userId }, { avatar })
 }

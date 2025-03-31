@@ -1,6 +1,6 @@
 import { Mentor } from "~/db/entities/Mentor"
-import { findMemberBy } from "~/Member/member.model"
-import { findMentorBy } from "~/Mentor/mentor.model"
+import { findMemberBy, updateMemberAvatar } from "~/Member/member.model"
+import { findMentorBy, updateMentorAvatar } from "~/Mentor/mentor.model"
 import { IAccount, RESPONSE_CODE } from "~/types"
 import FeatureError from "~/utils/FeatureError"
 import bcrypt from "bcrypt"
@@ -10,7 +10,9 @@ import {
   IGetUserInfoResult,
   IGetUserInfo,
   USER_IDENTITY,
+  IUpdateAvatar,
 } from "./types"
+import { parseImageUrl, uploadFiles } from "~/utils/assetHelper"
 
 export const login = async ({
   email,
@@ -76,6 +78,26 @@ export const getUserInfo = async ({
       identity,
       user,
     }
+  } catch (error) {
+    throw error
+  }
+}
+
+export const updateAvatar = async ({
+  userId,
+  identity,
+  avatar,
+}: IUpdateAvatar) => {
+  try {
+    const [avatarImageId] = await uploadFiles([avatar[0]])
+    const avatarUrl = parseImageUrl(avatarImageId)
+    const result =
+      identity === USER_IDENTITY.MEMBER
+        ? await updateMemberAvatar({ userId, avatar: avatarUrl })
+        : await updateMentorAvatar({ userId, avatar: avatarUrl })
+    console.log(result, userId, identity)
+
+    return result
   } catch (error) {
     throw error
   }

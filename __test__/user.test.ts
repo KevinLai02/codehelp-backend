@@ -11,6 +11,7 @@ import { SQLite } from "./utils/sqlite.config"
 import { generateToken } from "~/utils/account"
 import { addOneMentor } from "./utils/addOneMentor"
 import { generateNotExistsToken } from "./utils/generateNotExistsToken"
+import path from "path"
 
 let server: Express
 let mentorToken: string
@@ -48,6 +49,8 @@ beforeAll(async () => {
       password: encryptedMemberPassword,
     })
     memberToken = generateToken(member)
+    console.log(newMentorData.avatar)
+    console.log(member.avatar)
 
     server.use("/user", [userRouter])
   } catch (error) {
@@ -140,5 +143,61 @@ describe("User router GET: User Info", () => {
  * (o) Should return member info if the identity is member when requested successfully.
  *
  * (x) Should return an error with response code 4002 when the user is not found.
+ *
+ */
+
+describe("User router PUT: Update Avatar", () => {
+  it("(o) Should return a successful message when the mentor requested successfully.", async () => {
+    const res = await request(server)
+      .put("/user/update/avatar")
+      .set("Authorization", mentorToken)
+      .attach("avatar", path.join(__dirname, "/mock/test.jpg"))
+
+    expect(res.status).toBe(200)
+    expect(res.body.status).toBe("ok")
+    expect(res.body.message).toBe("Update successfully")
+  })
+
+  it("(o) Should return a successful message when the member requested successfully.", async () => {
+    const res = await request(server)
+      .put("/user/update/avatar")
+      .set("Authorization", mentorToken)
+      .attach("avatar", path.join(__dirname, "/mock/test.jpg"))
+
+    expect(res.status).toBe(200)
+    expect(res.body.status).toBe("ok")
+    expect(res.body.message).toBe("Update successfully")
+  })
+
+  it("(x) Should return an error with response code 4002 when the user is not found.", async () => {
+    const res = await request(server)
+      .put("/user/update/avatar")
+      .set("Authorization", mentorToken)
+      .attach("avatar", path.join(__dirname, "/mock/test.jpg"))
+
+    expect(res.status).toBe(401)
+    expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)
+  })
+
+  it("(x) Should return an error with response code 4001 when the avatar is missing.", async () => {
+    const res = await request(server)
+      .put("/user/update/avatar")
+      .set("Authorization", mentorToken)
+
+    expect(res.status).toBe(422)
+    expect(res.body.code).toBe(RESPONSE_CODE.VALIDATE_ERROR)
+  })
+})
+
+/*
+ *  [PUT] Update Avatar
+ *
+ *  (o) Should return a successful message when the mentor requested successfully.
+ *
+ *  (o) Should return a successful message when the member requested successfully.
+ *
+ *  (x) Should return an error with response code 4004 when the user is not found.
+ *
+ *  (x) Should return an error with response code 4001 when the avatar is missing.
  *
  */

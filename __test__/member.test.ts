@@ -2,7 +2,7 @@ import { SQLite } from "./utils/sqlite.config"
 import express, { Express } from "express"
 import bodyParser from "body-parser"
 import memberRouter from "~/Member/member.router"
-import { addMember } from "~/Member/member.model"
+import { addMember, findMemberBy } from "~/Member/member.model"
 import {
   MEMBER,
   NOT_EXISTS_ID,
@@ -13,12 +13,14 @@ import { generateToken } from "~/utils/account"
 import request from "supertest"
 import path from "path"
 import { RESPONSE_CODE } from "~/types"
+import { generateNotExistsToken } from "./utils/generateNotExistsToken"
+import { IMemberInfo } from "~/Member/types"
 
 let server: Express
 const sqlite = new SQLite()
 let member: Member
 let memberToken: string
-
+const NOT_EXISTS_TOKEN = generateNotExistsToken()
 const MEMBER_DATA = {
   userName: "testSignUpMember",
   email: "testSignUpMember@gmail.com",
@@ -28,6 +30,18 @@ const MEMBER_DATA = {
   title: "title",
   company: "company",
   introduction: "introduction",
+  phoneNumber: "0900000000",
+  level: 0,
+  fieldOfWork: ["work1", "work2"],
+}
+
+const UPDATE_DATA: IMemberInfo = {
+  userName: "updateMember",
+  gender: "f",
+  country: "TW",
+  title: "title",
+  company: "company",
+  introduction: "update introduction",
   phoneNumber: "0900000000",
   level: 0,
   fieldOfWork: ["work1", "work2"],
@@ -142,5 +156,64 @@ describe("Member Router Get: Member info by ID", () => {
  *  (x) Should return an error with response code 4004 when the member not found.
  *
  *  (x) Should return an error with response status 404 when the request is missing the member ID.
+ *
+ */
+
+describe("Member Router Put: Update Member info", () => {
+  it("(o) Should return a successful message when requested successfully.", async () => {
+    const res = await request(server)
+      .put("/member/update/info")
+      .set("Authorization", memberToken)
+      .send(UPDATE_DATA)
+
+    const updatedMember = await findMemberBy({ id: member.id })
+    expect(res.status).toBe(200)
+    expect(res.body.status).toBe("ok")
+    expect(res.body.message).toBe("Update successfully")
+    expect(updatedMember?.userName).toBe(UPDATE_DATA.userName)
+    expect(updatedMember?.introduction).toBe(UPDATE_DATA.introduction)
+  })
+
+  it("(x) Should return an error with response code 4002 when the member is not found.", async () => {
+    const res = await request(server)
+      .put("/member/update/info")
+      .set("Authorization", NOT_EXISTS_TOKEN)
+      .send(UPDATE_DATA)
+
+    expect(res.status).toBe(401)
+    expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)
+  })
+
+  it("(x) Should return an error with response code 4001 when missing the required data.", async () => {
+    const res = await request(server)
+      .put("/member/update/info")
+      .set("Authorization", memberToken)
+      //Missing userName
+      .send({
+        email: "testSignUpMember@gmail.com",
+        password: "123456789",
+        gender: "f",
+        country: "TW",
+        title: "title",
+        company: "company",
+        introduction: "introduction",
+        phoneNumber: "0900000000",
+        level: 0,
+        fieldOfWork: ["work1", "work2"],
+      })
+
+    expect(res.status).toBe(422)
+    expect(res.body.code).toBe(RESPONSE_CODE.VALIDATE_ERROR)
+  })
+})
+
+/*
+ *  [PUT] Update Member Info
+ *
+ *  (o) Should return a successful message when requested successfully.
+ *
+ *  (x) Should return an error with response code 4004 when the member is not found.
+ *
+ *  (x) Should return an error with response code 4001 when missing the required data.
  *
  */

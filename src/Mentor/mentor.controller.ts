@@ -3,6 +3,10 @@ import {
   getInfo,
   getList,
   updateMentorAvailableTime,
+  updateMentorInfo,
+  updateDisciplines,
+  updateSkills,
+  updateTools,
 } from "./mentor.feature"
 import { IApi } from "~/types"
 import errorHandler from "~/utils/errorHandler"
@@ -69,6 +73,78 @@ export const modifyAvailableTime: IApi = async (req, res) => {
     const result = await updateMentorAvailableTime({
       mentorId: userId,
       availableTimeList,
+    })
+
+    res.status(200).send({
+      status: "ok",
+      message: "Update successfully",
+    })
+  } catch (error) {
+    errorHandler(res, error)
+  }
+}
+
+export const updateMentorInfoController: IApi = async (req, res) => {
+  try {
+    const { userId, tokenIAT, identity, ...data } = req.body
+
+    const result = await updateMentorInfo({
+      userId,
+      data,
+    })
+
+    res.status(200).send({
+      status: "ok",
+      message: "Update successfully",
+    })
+  } catch (error) {
+    errorHandler(res, error)
+  }
+}
+
+export const updateDisciplinesController: IApi = async (req, res) => {
+  try {
+    const { userId, disciplines } = req.body
+
+    const result = await updateDisciplines({
+      userId,
+      disciplines,
+    })
+
+    res.status(200).send({
+      status: "ok",
+      message: "Update successfully",
+    })
+  } catch (error) {
+    errorHandler(res, error)
+  }
+}
+
+export const updateSkillsController: IApi = async (req, res) => {
+  try {
+    const { userId, skills } = req.body
+
+    const result = await updateSkills({
+      userId,
+      skills,
+    })
+
+    res.status(200).send({
+      status: "ok",
+      message: "Update successfully",
+    })
+  } catch (error) {
+    errorHandler(res, error)
+  }
+}
+
+export const updateToolsController: IApi = async (req, res) => {
+  try {
+    const { userId, tools } = req.body
+
+    const result = await updateTools({
+      userId,
+      tools,
     })
 
     res.status(200).send({

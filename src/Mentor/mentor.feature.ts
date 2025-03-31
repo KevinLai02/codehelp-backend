@@ -3,8 +3,12 @@ import { RESPONSE_CODE } from "~/types"
 import {
   IAvailableTime,
   IMentorDisciplines,
+  IMentorInfo,
   IMentorSkills,
   IMentorTools,
+  MENTOR_DISCIPLINES,
+  MENTOR_SKILLS,
+  MENTOR_TOOLS,
 } from "./types"
 import { generateToken } from "~/utils/account"
 import {
@@ -15,6 +19,10 @@ import {
   addMentorDisciplines,
   addMentorSkills,
   addMentorTools,
+  updateMentor,
+  removeMentorDisciplines,
+  removeMentorSkills,
+  removeMentorTools,
 } from "./mentor.model"
 import { IKeywordPagination, IMentorRequestBody } from "~/Mentor/types"
 
@@ -130,6 +138,86 @@ export const updateMentorAvailableTime = async ({
     )
 
     const result = await updateAvailableTime(newAvailableTimeList)
+
+    return result
+  } catch (error) {
+    throw error
+  }
+}
+
+export const updateMentorInfo = async ({
+  userId,
+  data,
+}: {
+  userId: string
+  data: IMentorInfo
+}) => {
+  try {
+    const result = await updateMentor({ userId, data })
+
+    return result
+  } catch (error) {
+    throw error
+  }
+}
+
+export const updateDisciplines = async ({
+  userId,
+  disciplines,
+}: {
+  userId: string
+  disciplines: MENTOR_DISCIPLINES[]
+}) => {
+  try {
+    await removeMentorDisciplines({ userId })
+    const mentorDisciplines = disciplines.map((disciplineName) => ({
+      mentorId: userId,
+      discipline: disciplineName,
+    }))
+    const result = await addMentorDisciplines(mentorDisciplines)
+
+    return result
+  } catch (error) {
+    throw error
+  }
+}
+
+export const updateSkills = async ({
+  userId,
+  skills,
+}: {
+  userId: string
+  skills: MENTOR_SKILLS[]
+}) => {
+  try {
+    await removeMentorSkills({ userId })
+
+    const mentorSkills = skills.map((skillName) => ({
+      mentorId: userId,
+      skill: skillName,
+    }))
+    const result = await addMentorSkills(mentorSkills)
+
+    return result
+  } catch (error) {
+    throw error
+  }
+}
+
+export const updateTools = async ({
+  userId,
+  tools,
+}: {
+  userId: string
+  tools: MENTOR_TOOLS[]
+}) => {
+  try {
+    await removeMentorTools({ userId })
+    const mentorTools = tools.map((toolName) => ({
+      mentorId: userId,
+      tool: toolName,
+    }))
+    const result = await addMentorTools(mentorTools)
 
     return result
   } catch (error) {

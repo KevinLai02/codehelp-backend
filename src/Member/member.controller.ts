@@ -1,6 +1,6 @@
 import { IApi, RESPONSE_CODE } from "~/types"
 import FeatureError from "~/utils/FeatureError"
-import { getMember, save } from "./member.feature"
+import { getMember, save, updateMemberInfo } from "./member.feature"
 import errorHandler from "~/utils/errorHandler"
 
 export const signUp: IApi = async (req, res) => {
@@ -36,6 +36,20 @@ export const getMemberController: IApi = async (req, res) => {
     res.status(200).send({
       status: "ok",
       member,
+    })
+  } catch (error) {
+    errorHandler(res, error)
+  }
+}
+
+export const updateMemberInfoController: IApi = async (req, res) => {
+  try {
+    const { userId, tokenIAT, identity, ...data } = req.body
+    const result = await updateMemberInfo({ userId, data })
+
+    res.status(200).send({
+      status: "ok",
+      message: "Update successfully",
     })
   } catch (error) {
     errorHandler(res, error)

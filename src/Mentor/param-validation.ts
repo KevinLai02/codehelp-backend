@@ -67,3 +67,52 @@ export const updateAvailableTimeSchema = Joi.object({
       .items(availableTimeItemSchema),
   }),
 })
+
+export const updateMentorInfoSchema = Joi.object({
+  body: Joi.object().keys({
+    userName: Joi.string().required().min(3).max(30),
+    gender: Joi.string().valid("m", "f", "n").required(),
+    country: Joi.string()
+      .valid(...countryCodes)
+      .required()
+      .uppercase(),
+    title: Joi.string().required().max(100),
+    company: Joi.string().required().max(100),
+    introduction: Joi.string().required().max(500),
+    phoneNumber: Joi.string().required().max(20),
+    level: Joi.number().required().max(3).min(0),
+    linkedInURL: Joi.string().required().max(257),
+    primaryExpertise: Joi.string().required().max(100),
+    secondaryExpertise: Joi.string().required().allow("").max(100),
+    tertiaryExpertise: Joi.string().required().allow("").max(100),
+    education: Joi.string().max(50).required(),
+    quickReply: Joi.boolean().required(),
+  }),
+})
+
+export const updateDisciplineSchema = Joi.object({
+  body: Joi.object().keys({
+    disciplines: Joi.array()
+      .items(Joi.string().valid(...Object.values(MENTOR_DISCIPLINES)))
+      .required()
+      .min(1),
+  }),
+})
+
+export const updateSkillSchema = Joi.object({
+  body: Joi.object().keys({
+    skills: Joi.array()
+      .items(Joi.string().valid(...Object.values(MENTOR_SKILLS)))
+      .required()
+      .min(1),
+  }),
+})
+
+export const updateToolSchema = Joi.object({
+  body: Joi.object().keys({
+    tools: Joi.array()
+      .items(Joi.string().valid(...Object.values(MENTOR_TOOLS)))
+      .required()
+      .min(1),
+  }),
+})
