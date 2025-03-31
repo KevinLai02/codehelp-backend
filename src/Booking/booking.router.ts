@@ -2,12 +2,13 @@ import express from "express"
 import auth from "~/middleware/auth"
 
 import { validation } from "~/middleware/validation"
-import { newBookingSchema } from "./param-validation"
+import { newBookingSchema, updateBookingSchema } from "./param-validation"
 import {
   deleteBookingRecordController,
   getBookingRecordController,
   getBookingRecordsController,
   newBookingController,
+  updateBookingController,
 } from "./booking.controller"
 import { uploadFiles } from "~/middleware/file"
 import { paginationSchema } from "~/utils/common-param-validation"
@@ -30,4 +31,13 @@ router
 router.route("/record/:bookingId").get(auth, getBookingRecordController)
 
 router.route("/delete/:bookingId").delete(auth, deleteBookingRecordController)
+
+router
+  .route("/update/:bookingId")
+  .put(
+    uploadFiles.fields([{ name: "newPicture", maxCount: 10 }]),
+    validation(updateBookingSchema),
+    auth,
+    updateBookingController,
+  )
 export default router

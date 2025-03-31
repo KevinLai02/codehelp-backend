@@ -62,3 +62,28 @@ export interface IBookingRecord {
   userId: string
   bookingId: string
 }
+
+export interface IUpdateBooking {
+  userId: string
+  bookingId: string
+  content: {
+    topic: string
+    question: string
+    bookingTime: Date
+    duration: number
+    picture: string[]
+    newPicture: Express.Multer.File[]
+  }
+}
+
+export interface IUpdateBookingModel {
+  userId: string
+  bookingId: string
+  content: {
+    topic: string
+    question: string
+    bookingTime: Date
+    duration: number
+    picture: string[]
+  }
+}

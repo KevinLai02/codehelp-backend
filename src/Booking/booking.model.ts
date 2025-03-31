@@ -5,6 +5,7 @@ import {
   IGetBookingRecordsModel,
   INewBookingMemberModel,
   INewBookingModel,
+  IUpdateBookingModel,
 } from "./types"
 import { BookingMember } from "~/db/entities/BookingMember"
 import dataSource from "~/db/dataSource"
@@ -99,5 +100,22 @@ export const deleteOne = ({ userId, bookingId }: IBookingRecord) => {
       },
     )
     .delete()
+    .execute()
+}
+
+export const update = ({
+  userId,
+  bookingId,
+  content: { topic, question, duration, bookingTime, picture },
+}: IUpdateBookingModel) => {
+  return Booking.createQueryBuilder("booking")
+    .where(
+      "booking.id IN (SELECT booking_id FROM booking_member WHERE member_id = :userId AND booking_id = :bookingId)",
+      {
+        userId,
+        bookingId,
+      },
+    )
+    .update({ topic, question, duration, bookingAt: bookingTime, picture })
     .execute()
 }

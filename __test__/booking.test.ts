@@ -23,6 +23,8 @@ import { BookingMember } from "~/db/entities/BookingMember"
 import { format } from "date-fns"
 import { addOneMentor } from "./utils/addOneMentor"
 import { generateNotExistsToken } from "./utils/generateNotExistsToken"
+import { findBookingRecord } from "~/Booking/booking.model"
+import path from "path"
 
 let server: Express
 const sqlite = new SQLite()
@@ -38,6 +40,12 @@ const BOOKING_DATA = {
   QUESTION: "The booking feature testing.",
   BOOKING_TIME: "2025/03/04 11:00",
   DURATION: 30,
+}
+const UPDATE_BOOKING_DATA = {
+  topic: "update booking topic",
+  question: "The booking update feature testing.",
+  bookingTime: "2025/04/01 11:00",
+  duration: 60,
 }
 const NOT_EXISTS_TOKEN = generateNotExistsToken()
 beforeAll(async () => {
@@ -90,6 +98,7 @@ describe("Booking router Post: Create a booking", () => {
       .field("duration", BOOKING_DATA.DURATION)
       .field("memberIds[0]", member.id)
       .set("Authorization", memberToken)
+
     bookingId = res.body.booking.id
 
     expect(res.status).toBe(200)
@@ -357,5 +366,78 @@ describe("Booking router Delete: The Booking Record", () => {
  *  (o) Should return successful message when requested successfully.
  *
  *  (x) Should return an error with response code 4002 when the user is not found.
+ *
+ */
+
+describe("Booking Router PUT", () => {
+  it("(o) Should return successful message when requested successfully.", async () => {
+    const res = await request(server)
+      .put(`/booking/update/${bookingId}`)
+      .set({
+        "Content-Type": "application/json",
+        Authorization: memberToken,
+      })
+      .field(UPDATE_BOOKING_DATA)
+      .field("picture", [])
+      .attach("newPicture", path.join(__dirname, "/mock/Dog.png"))
+
+    const updatedBooking = await findBookingRecord({
+      userId: member.id,
+      bookingId,
+    })
+
+    expect(res.status).toBe(200)
+    expect(res.body.status).toBe("ok")
+    expect(res.body.message).toBe("Update successfully")
+    expect(updatedBooking?.topic).toBe(UPDATE_BOOKING_DATA.topic)
+    expect(updatedBooking?.question).toBe(UPDATE_BOOKING_DATA.question)
+    expect(updatedBooking?.bookingAt).toBe(UPDATE_BOOKING_DATA.bookingTime)
+    expect(updatedBooking?.duration).toBe(UPDATE_BOOKING_DATA.duration)
+  })
+
+  it("(x) Should return an error with response code 4002 when the member is not found.", async () => {
+    const res = await request(server)
+      .put(`/booking/update/${bookingId}`)
+      .set({
+        "Content-Type": "application/json",
+        Authorization: NOT_EXISTS_TOKEN,
+      })
+      .field(UPDATE_BOOKING_DATA)
+      .field("picture", [])
+      .attach("newPicture", path.join(__dirname, "/mock/Dog.png"))
+
+    expect(res.status).toBe(401)
+    expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)
+  })
+
+  it("(x) Should return an error with response code 4001 when missing required data.", async () => {
+    const res = await request(server)
+      .put(`/booking/update/${bookingId}`)
+      .set({
+        "Content-Type": "application/json",
+        Authorization: memberToken,
+      })
+      //Missing duration
+      .field({
+        topic: "update booking topic",
+        question: "The booking update feature testing.",
+        bookingTime: "2025/04/01 11:00",
+        picture: [],
+      })
+      .attach("newPicture", path.join(__dirname, "/mock/Dog.png"))
+
+    expect(res.status).toBe(422)
+    expect(res.body.code).toBe(RESPONSE_CODE.VALIDATE_ERROR)
+  })
+})
+
+/*
+ *  [PUT] Update Booking Content
+ *
+ *  (o) Should return successful message when requested successfully.
+ *
+ *  (x) Should return an error with response code 4002 when the member is not found.
+ *
+ *  (x) Should return an error with response code 4001 when missing required data.
  *
  */

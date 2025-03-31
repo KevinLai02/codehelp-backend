@@ -4,6 +4,7 @@ import {
   getBookingRecord,
   newBooking,
   deleteBookingRecord,
+  updateBooking,
 } from "./booking.feature"
 import errorHandler from "~/utils/errorHandler"
 
@@ -93,6 +94,29 @@ export const deleteBookingRecordController: IApi = async (req, res) => {
     return res.status(200).send({
       status: "ok",
       message: "Delete successfully",
+      affected: result.affected,
+    })
+  } catch (error) {
+    errorHandler(res, error)
+  }
+}
+
+export const updateBookingController: IApi = async (req, res) => {
+  try {
+    const { bookingId } = req.params
+    const { userId, topic, question, picture, duration, bookingTime } = req.body
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] }
+    const { newPicture } = files
+
+    const result = await updateBooking({
+      userId,
+      bookingId,
+      content: { topic, question, picture, duration, bookingTime, newPicture },
+    })
+
+    return res.status(200).send({
+      status: "ok",
+      message: "Update successfully",
       affected: result.affected,
     })
   } catch (error) {

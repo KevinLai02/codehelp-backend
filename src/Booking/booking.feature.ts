@@ -5,6 +5,7 @@ import {
   IGetBookingRecordsFeature,
   INewBookingFeature,
   INewBookingMemberModel,
+  IUpdateBooking,
 } from "./types"
 import { findMembersBy } from "~/Member/member.model"
 import checkBookingTimeIsAvailable from "~/utils/checkBookingTimeIsAvailable"
@@ -17,6 +18,7 @@ import {
   deleteOne,
   findBookingRecord,
   findBookingRecords,
+  update,
 } from "./booking.model"
 import { parseImageUrl, uploadFiles } from "~/utils/assetHelper"
 
@@ -167,6 +169,29 @@ export const deleteBookingRecord = async ({
     const result = await deleteOne({
       userId,
       bookingId,
+    })
+
+    return result
+  } catch (error) {
+    throw error
+  }
+}
+
+export const updateBooking = async ({
+  userId,
+  bookingId,
+  content: { topic, question, bookingTime, duration, picture = [], newPicture },
+}: IUpdateBooking) => {
+  try {
+    if (newPicture.length > 0) {
+      const pictureIds = await uploadFiles(newPicture)
+      pictureIds.forEach((id) => picture.push(parseImageUrl(id)))
+    }
+    picture = picture.filter((pic) => pic.length !== 0)
+    const result = await update({
+      userId,
+      bookingId,
+      content: { topic, question, bookingTime, duration, picture },
     })
 
     return result
