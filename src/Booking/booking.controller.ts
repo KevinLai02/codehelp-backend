@@ -4,8 +4,10 @@ import {
   getBookingRecord,
   newBooking,
   deleteBookingRecord,
+  updateBookingStatus,
 } from "./booking.feature"
 import errorHandler from "~/utils/errorHandler"
+import { BOOKING_STATUS_LABELS } from "./types"
 
 export const newBookingController: IApi = async (req, res) => {
   try {
@@ -94,6 +96,26 @@ export const deleteBookingRecordController: IApi = async (req, res) => {
       status: "ok",
       message: "Delete successfully",
       affected: result.affected,
+    })
+  } catch (error) {
+    errorHandler(res, error)
+  }
+}
+
+export const updateBookingStatusController: IApi = async (req, res) => {
+  try {
+    const { userId, bookingStatus } = req.body
+    const { bookingId } = req.params
+
+    const result = await updateBookingStatus({
+      userId,
+      bookingId,
+      bookingStatus,
+    })
+
+    return res.status(200).send({
+      status: "ok",
+      message: `${bookingId} ${BOOKING_STATUS_LABELS[bookingStatus]}`,
     })
   } catch (error) {
     errorHandler(res, error)

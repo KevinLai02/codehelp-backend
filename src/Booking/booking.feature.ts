@@ -5,6 +5,7 @@ import {
   IGetBookingRecordsFeature,
   INewBookingFeature,
   INewBookingMemberModel,
+  IUpdateBookingStatus,
 } from "./types"
 import { findMembersBy } from "~/Member/member.model"
 import checkBookingTimeIsAvailable from "~/utils/checkBookingTimeIsAvailable"
@@ -17,6 +18,7 @@ import {
   deleteOne,
   findBookingRecord,
   findBookingRecords,
+  updateStatus,
 } from "./booking.model"
 import { parseImageUrl, uploadFiles } from "~/utils/assetHelper"
 
@@ -167,6 +169,24 @@ export const deleteBookingRecord = async ({
     const result = await deleteOne({
       userId,
       bookingId,
+    })
+
+    return result
+  } catch (error) {
+    throw error
+  }
+}
+
+export const updateBookingStatus = async ({
+  userId,
+  bookingId,
+  bookingStatus,
+}: IUpdateBookingStatus) => {
+  try {
+    const result = await updateStatus({
+      userId,
+      bookingId,
+      bookingStatus,
     })
 
     return result
