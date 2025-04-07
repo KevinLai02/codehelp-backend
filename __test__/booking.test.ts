@@ -421,3 +421,61 @@ describe("Booking Router PUT: Booking Status", () => {
  *  (x) Should return an error with response code 4001 when booking status doesn't follow the validation.
  *
  */
+
+describe("Booking Router PUT: Booking Completed", () => {
+  it("(o) Should return successful message when requested successfully.", async () => {
+    const res = await request(server)
+      .put(`/booking/update/${bookingId}/complete`)
+      .set("Authorization", memberToken)
+      .send({ bookingStatus: BOOKING_STATUS.COMPLETED })
+
+    expect(res.status).toBe(200)
+    expect(res.body.status).toBe("ok")
+    expect(res.body.message).toBe(
+      `${bookingId} ${BOOKING_STATUS_LABELS[BOOKING_STATUS.COMPLETED]}`,
+    )
+  })
+
+  it("(x) Should return an error with response code 4002 when the mentor is not found.", async () => {
+    const res = await request(server)
+      .put(`/booking/update/${bookingId}/complete`)
+      .set("Authorization", NOT_EXISTS_TOKEN)
+      .send({ bookingStatus: BOOKING_STATUS.COMPLETED })
+
+    expect(res.status).toBe(401)
+    expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)
+  })
+
+  it("(x) Should return an error with response code 4004 when the booking is not found.", async () => {
+    const res = await request(server)
+      .put(`/booking/update/${NOT_EXISTS_ID}/complete`)
+      .set("Authorization", memberToken)
+      .send({ bookingStatus: BOOKING_STATUS.COMPLETED })
+
+    expect(res.status).toBe(400)
+    expect(res.body.code).toBe(RESPONSE_CODE.TARGET_NOT_EXISTS)
+  })
+
+  it("(x) Should return an error with response code 4001 when booking status doesn't follow the validation.", async () => {
+    const res = await request(server)
+      .put(`/booking/update/${bookingId}/complete`)
+      .set("Authorization", mentorToken)
+      .send({ bookingStatus: ERROR_BOOKING_STATUS })
+
+    expect(res.status).toBe(422)
+    expect(res.body.code).toBe(RESPONSE_CODE.VALIDATE_ERROR)
+  })
+})
+
+/*
+ *  [PUT] Booking Completed
+ *
+ *  (o) Should return successful message when requested successfully.
+ *
+ *  (x) Should return an error with response code 4002 when the mentor is not found.
+ *
+ *  (x) Should return an error with response code 4004 when the booking is not found.
+ *
+ *  (x) Should return an error with response code 4001 when booking status doesn't follow the validation.
+ *
+ */

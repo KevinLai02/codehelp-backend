@@ -2,12 +2,17 @@ import express from "express"
 import auth from "~/middleware/auth"
 
 import { validation } from "~/middleware/validation"
-import { newBookingSchema, updateStatusSchema } from "./param-validation"
+import {
+  bookingCompleteSchema,
+  newBookingSchema,
+  updateStatusSchema,
+} from "./param-validation"
 import {
   deleteBookingRecordController,
   getBookingRecordController,
   getBookingRecordsController,
   newBookingController,
+  updateBookingCompleteController,
   updateBookingStatusController,
 } from "./booking.controller"
 import { uploadFiles } from "~/middleware/file"
@@ -35,4 +40,8 @@ router.route("/delete/:bookingId").delete(auth, deleteBookingRecordController)
 router
   .route("/update/status/:bookingId")
   .put(validation(updateStatusSchema), auth, updateBookingStatusController)
+
+router
+  .route("/update/:bookingId/complete")
+  .put(validation(bookingCompleteSchema), auth, updateBookingCompleteController)
 export default router

@@ -6,6 +6,7 @@ import {
   INewBookingMemberModel,
   INewBookingModel,
   IUpdateBookingStatus,
+  IBookingCompleteModel,
 } from "./types"
 import { BookingMember } from "~/db/entities/BookingMember"
 import dataSource from "~/db/dataSource"
@@ -103,14 +104,39 @@ export const deleteOne = ({ userId, bookingId }: IBookingRecord) => {
     .execute()
 }
 
-export const updateStatus = ({
-  userId,
+export const updateStatusByHostAndBookingId = ({
+  hostId,
   bookingId,
   bookingStatus,
 }: IUpdateBookingStatus) => {
   return Booking.createQueryBuilder("booking")
-    .where("booking.host_id = :userId AND booking.id = :bookingId", {
-      userId,
+    .where("booking.host_id = :hostId", {
+      hostId,
+    })
+    .andWhere("booking.id = :bookingId", { bookingId })
+    .update({ bookingStatus })
+    .execute()
+}
+
+export const findBookingBy = ({
+  memberId,
+  bookingId,
+}: {
+  memberId: string
+  bookingId: string
+}) => {
+  return BookingMember.createQueryBuilder("bookingMember")
+    .where("booking_id = :bookingId", { bookingId })
+    .andWhere("member_id = :memberId", { memberId })
+    .getOne()
+}
+
+export const updateStatusByBookingId = ({
+  bookingId,
+  bookingStatus,
+}: IBookingCompleteModel) => {
+  return Booking.createQueryBuilder("booking")
+    .where("booking.id = :bookingId", {
       bookingId,
     })
     .update({ bookingStatus })
