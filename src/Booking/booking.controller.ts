@@ -4,8 +4,11 @@ import {
   getBookingRecord,
   newBooking,
   deleteBookingRecord,
+  updateBookingStatus,
+  updateBookingComplete,
 } from "./booking.feature"
 import errorHandler from "~/utils/errorHandler"
+import { BOOKING_STATUS, BOOKING_STATUS_LABELS } from "./types"
 
 export const newBookingController: IApi = async (req, res) => {
   try {
@@ -94,6 +97,46 @@ export const deleteBookingRecordController: IApi = async (req, res) => {
       status: "ok",
       message: "Delete successfully",
       affected: result.affected,
+    })
+  } catch (error) {
+    errorHandler(res, error)
+  }
+}
+
+export const updateBookingStatusController: IApi = async (req, res) => {
+  try {
+    const { userId, bookingStatus } = req.body
+    const { bookingId } = req.params
+
+    const result = await updateBookingStatus({
+      hostId: userId,
+      bookingId,
+      bookingStatus,
+    })
+
+    return res.status(200).send({
+      status: "ok",
+      message: `${bookingId} ${BOOKING_STATUS_LABELS[bookingStatus]}`,
+    })
+  } catch (error) {
+    errorHandler(res, error)
+  }
+}
+
+export const updateBookingCompleteController: IApi = async (req, res) => {
+  try {
+    const { bookingStatus, userId } = req.body
+    const { bookingId } = req.params
+
+    const result = await updateBookingComplete({
+      memberId: userId,
+      bookingId,
+      bookingStatus,
+    })
+
+    return res.status(200).send({
+      status: "ok",
+      message: `${bookingId} ${BOOKING_STATUS_LABELS[BOOKING_STATUS.COMPLETED]}`,
     })
   } catch (error) {
     errorHandler(res, error)

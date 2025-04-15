@@ -62,3 +62,20 @@ export interface IBookingRecord {
   userId: string
   bookingId: string
 }
+
+export interface IUpdateBookingStatus {
+  hostId: string
+  bookingId: string
+  bookingStatus: BOOKING_STATUS
+}
+
+export interface IBookingComplete {
+  memberId: string
+  bookingId: string
+  bookingStatus: BOOKING_STATUS
+}
+
+export interface IBookingCompleteModel {
+  bookingId: string
+  bookingStatus: BOOKING_STATUS
+}

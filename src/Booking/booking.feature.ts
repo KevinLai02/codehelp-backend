@@ -1,10 +1,12 @@
 import { findMentorBy } from "~/Mentor/mentor.model"
 import {
   BOOKING_STATUS_LABELS,
+  IBookingComplete,
   IBookingRecord,
   IGetBookingRecordsFeature,
   INewBookingFeature,
   INewBookingMemberModel,
+  IUpdateBookingStatus,
 } from "./types"
 import { findMembersBy } from "~/Member/member.model"
 import checkBookingTimeIsAvailable from "~/utils/checkBookingTimeIsAvailable"
@@ -15,8 +17,11 @@ import {
   addBookingMember,
   checkIsBooked,
   deleteOne,
+  findBookingBy,
   findBookingRecord,
   findBookingRecords,
+  updateStatusByHostAndBookingId,
+  updateStatusByBookingId,
 } from "./booking.model"
 import { parseImageUrl, uploadFiles } from "~/utils/assetHelper"
 
@@ -167,6 +172,50 @@ export const deleteBookingRecord = async ({
     const result = await deleteOne({
       userId,
       bookingId,
+    })
+
+    return result
+  } catch (error) {
+    throw error
+  }
+}
+
+export const updateBookingStatus = async ({
+  hostId,
+  bookingId,
+  bookingStatus,
+}: IUpdateBookingStatus) => {
+  try {
+    const result = await updateStatusByHostAndBookingId({
+      hostId,
+      bookingId,
+      bookingStatus,
+    })
+
+    return result
+  } catch (error) {
+    throw error
+  }
+}
+
+export const updateBookingComplete = async ({
+  memberId,
+  bookingId,
+  bookingStatus,
+}: IBookingComplete) => {
+  try {
+    const bookingMemberRecord = await findBookingBy({ memberId, bookingId })
+    if (!bookingMemberRecord) {
+      throw new FeatureError(
+        400,
+        RESPONSE_CODE.TARGET_NOT_EXISTS,
+        "Booking record not found",
+      )
+    }
+
+    const result = await updateStatusByBookingId({
+      bookingId: bookingMemberRecord.bookingId,
+      bookingStatus,
     })
 
     return result
