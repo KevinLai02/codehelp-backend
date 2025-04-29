@@ -3,6 +3,8 @@ import jwt, { JsonWebTokenError, JwtPayload } from "jsonwebtoken"
 import { RESPONSE_CODE } from "../types"
 import { findMemberBy } from "~/Member/member.model"
 import { findMentorBy } from "~/Mentor/mentor.model"
+import { Mentor } from "~/db/entities/Mentor"
+import { USER_IDENTITY } from "~/User/types"
 
 const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -18,10 +20,13 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
       })
     }
 
-    const member = await findMemberBy({ id: userId })
-    const mentor = await findMentorBy({ id: userId })
+    const findMentor = findMentorBy({ id: userId })
+    const findMember = findMemberBy({ id: userId })
+    const [mentor, member] = await Promise.all([findMentor, findMember])
 
-    if (!member && !mentor) {
+    const user = mentor || member
+
+    if (!user) {
       return res.status(401).send({
         code: RESPONSE_CODE.USER_DATA_ERROR,
         status: "error",
@@ -29,8 +34,12 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
       })
     }
 
+    const identity =
+      user instanceof Mentor ? USER_IDENTITY.MENTOR : USER_IDENTITY.MEMBER
+
     req.body.tokenIAT = decoded.iat
     req.body.userId = member?.id || mentor?.id
+    req.body.identity = identity
     next()
   } catch (error) {
     if (error instanceof JsonWebTokenError) {

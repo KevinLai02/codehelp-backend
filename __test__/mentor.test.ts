@@ -3,7 +3,12 @@ import express, { Express } from "express"
 import path from "path"
 import request from "supertest"
 import mentorRouter from "~/Mentor/mentor.router"
-import { MENTOR_DISCIPLINES, MENTOR_SKILLS, MENTOR_TOOLS } from "~/Mentor/types"
+import {
+  IMentorInfo,
+  MENTOR_DISCIPLINES,
+  MENTOR_SKILLS,
+  MENTOR_TOOLS,
+} from "~/Mentor/types"
 import { RESPONSE_CODE } from "~/types"
 import {
   MENTOR_ONE,
@@ -12,10 +17,13 @@ import {
 } from "./utils/constant"
 import { SQLite } from "./utils/sqlite.config"
 import { addOneMentor } from "./utils/addOneMentor"
+import { generateToken } from "~/utils/account"
+import { findMentorBy } from "~/Mentor/mentor.model"
+import { generateNotExistsToken } from "./utils/generateNotExistsToken"
 
 let server: Express
 let mentorId: string
-
+let mentorToken: string
 const sqlite = new SQLite()
 
 const MENTOR_DATA = {
@@ -36,6 +44,24 @@ const MENTOR_DATA = {
   education: "高雄科技大學-海事資訊科技系",
 }
 
+const UPDATE_DATA: IMentorInfo = {
+  userName: "updateMentor",
+  gender: "f",
+  country: "TW",
+  title: "title",
+  company: "company",
+  introduction: "update introduction",
+  phoneNumber: "0900000000",
+  level: 0,
+  linkedInURL: "linkedInURL",
+  primaryExpertise: "primaryExpertise",
+  secondaryExpertise: "secondaryExpertise",
+  tertiaryExpertise: "tertiaryExpertise",
+  education: "高雄科技大學-海事資訊科技系",
+  quickReply: true,
+}
+
+const NOT_EXISTS_TOKEN = generateNotExistsToken()
 beforeAll(async () => {
   try {
     await sqlite.setup()
@@ -46,10 +72,10 @@ beforeAll(async () => {
         extended: true,
       }),
     )
-    const { newMentorId } = await addOneMentor(MENTOR_ONE)
+    const { newMentorData, newMentorId } = await addOneMentor(MENTOR_ONE)
 
     mentorId = newMentorId
-
+    mentorToken = generateToken(newMentorData)
     server.use("/mentor", [mentorRouter])
   } catch (error) {
     console.log(error)
@@ -228,5 +254,264 @@ describe("Mentor router GET: Mentor Info", () => {
  * (o) Should return mentor info when requested successfully.
  *
  * (x) Should return an error with response code 4001 when the mentor is not found.
+ *
+ */
+
+describe("Mentor Router PUT: Update Mentor Info", () => {
+  it("(o) Should return a successful message when requested successfully.", async () => {
+    const res = await request(server)
+      .put("/mentor/update/info")
+      .set("Authorization", mentorToken)
+      .send(UPDATE_DATA)
+
+    const updatedMentor = await findMentorBy({ id: mentorId })
+    expect(res.status).toBe(200)
+    expect(res.body.status).toBe("ok")
+    expect(res.body.message).toBe("Update successfully")
+    expect(updatedMentor?.userName).toBe(UPDATE_DATA.userName)
+    expect(updatedMentor?.introduction).toBe(UPDATE_DATA.introduction)
+  })
+
+  it("(x) Should return an error with response code 4004 when the mentor is not found.", async () => {
+    const res = await request(server)
+      .put("/mentor/update/info")
+      .set("Authorization", NOT_EXISTS_TOKEN)
+      .send(UPDATE_DATA)
+
+    expect(res.status).toBe(401)
+    expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)
+  })
+
+  it("(x) Should return an error with response code 4001 when missing the required data.", async () => {
+    const res = await request(server)
+      .put("/mentor/update/info")
+      .set("Authorization", mentorToken)
+      //Missing userName
+      .send({
+        gender: "f",
+        country: "TW",
+        title: "title",
+        company: "company",
+        introduction: "update introduction",
+        phoneNumber: "0900000000",
+        level: 0,
+        linkedInURL: "linkedInURL",
+        primaryExpertise: "primaryExpertise",
+        secondaryExpertise: "secondaryExpertise",
+        tertiaryExpertise: "tertiaryExpertise",
+        education: "高雄科技大學-海事資訊科技系",
+      })
+
+    expect(res.status).toBe(422)
+    expect(res.body.code).toBe(RESPONSE_CODE.VALIDATE_ERROR)
+  })
+})
+
+/*
+ *  [PUT] Update Mentor Info
+ *
+ *  (o) Should return a successful message when requested successfully.
+ *
+ *  (x) Should return an error with response code 4004 when the mentor is not found.
+ *
+ *  (x) Should return an error with response code 4001 when missing the required data.
+ *
+ */
+
+describe("Mentor Router PUT: Update Mentor Disciplines", () => {
+  it("(o) Should return a successful message when requested successfully.", async () => {
+    const res = await request(server)
+      .put("/mentor/update/disciplines")
+      .set("Authorization", mentorToken)
+      .send({
+        disciplines: [MENTOR_DISCIPLINES.DESIGN, MENTOR_DISCIPLINES.SOCIOLOGY],
+      })
+
+    const updatedMentor = await findMentorBy({ id: mentorId })
+    expect(res.status).toBe(200)
+    expect(res.body.status).toBe("ok")
+    expect(res.body.message).toBe("Update successfully")
+    expect(updatedMentor?.mentorDisciplines.length).toBe(2)
+  })
+
+  it("(x) Should return an error with response code 4004 when the mentor is not found.", async () => {
+    const res = await request(server)
+      .put("/mentor/update/disciplines")
+      .set("Authorization", NOT_EXISTS_TOKEN)
+      .send({
+        disciplines: [MENTOR_DISCIPLINES.DESIGN, MENTOR_DISCIPLINES.SOCIOLOGY],
+      })
+
+    expect(res.status).toBe(401)
+    expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)
+  })
+
+  it("(x) Should return an error with response code 4001 when the discipline array is empty.", async () => {
+    const res = await request(server)
+      .put("/mentor/update/disciplines")
+      .set("Authorization", mentorToken)
+      .send({
+        disciplines: [],
+      })
+
+    expect(res.status).toBe(422)
+    expect(res.body.code).toBe(RESPONSE_CODE.VALIDATE_ERROR)
+  })
+
+  it("(x) Should return an error with response code 4001 when the item doesn't follow the validation.", async () => {
+    const res = await request(server)
+      .put("/mentor/update/disciplines")
+      .set("Authorization", mentorToken)
+      .send({
+        disciplines: ["first discipline"],
+      })
+
+    expect(res.status).toBe(422)
+    expect(res.body.code).toBe(RESPONSE_CODE.VALIDATE_ERROR)
+  })
+})
+
+/*
+ *  [PUT] Update Mentor Disciplines
+ *
+ *  (o) Should return a successful message when requested successfully.
+ *
+ *  (x) Should return an error with response code 4004 when the mentor is not found.
+ *
+ *  (x) Should return an error with response code 4001 when the discipline array is empty.
+ *
+ *  (x) Should return an error with response code 4001 when the item doesn't follow the validation.
+ *
+ */
+
+describe("Mentor Router PUT: Update Mentor Skills", () => {
+  it("(o) Should return a successful message when requested successfully.", async () => {
+    const res = await request(server)
+      .put("/mentor/update/skills")
+      .set("Authorization", mentorToken)
+      .send({
+        skills: [MENTOR_SKILLS.FIGMA, MENTOR_SKILLS.GIT],
+      })
+
+    const updatedMentor = await findMentorBy({ id: mentorId })
+    expect(res.status).toBe(200)
+    expect(res.body.status).toBe("ok")
+    expect(res.body.message).toBe("Update successfully")
+    expect(updatedMentor?.mentorSkills.length).toBe(2)
+  })
+
+  it("(x) Should return an error with response code 4004 when the mentor is not found.", async () => {
+    const res = await request(server)
+      .put("/mentor/update/skills")
+      .set("Authorization", NOT_EXISTS_TOKEN)
+      .send({
+        skills: [MENTOR_SKILLS.FIGMA, MENTOR_SKILLS.GIT],
+      })
+
+    expect(res.status).toBe(401)
+    expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)
+  })
+
+  it("(x) Should return an error with response code 4001 when the skill array is empty.", async () => {
+    const res = await request(server)
+      .put("/mentor/update/skills")
+      .set("Authorization", mentorToken)
+      .send({
+        skills: [],
+      })
+
+    expect(res.status).toBe(422)
+    expect(res.body.code).toBe(RESPONSE_CODE.VALIDATE_ERROR)
+  })
+
+  it("(x) Should return an error with response code 4001 when the item doesn't follow the validation.", async () => {
+    const res = await request(server)
+      .put("/mentor/update/skills")
+      .set("Authorization", mentorToken)
+      .send({
+        skills: ["first skill"],
+      })
+
+    expect(res.status).toBe(422)
+    expect(res.body.code).toBe(RESPONSE_CODE.VALIDATE_ERROR)
+  })
+})
+
+/*
+ *  [PUT] Update Mentor Skills
+ *
+ *  (o) Should return a successful message when requested successfully.
+ *
+ *  (x) Should return an error with response code 4004 when the mentor is not found.
+ *
+ *  (x) Should return an error with response code 4001 when the skill array is empty.
+ *
+ *  (x) Should return an error with response code 4001 when the item doesn't follow the validation.
+ *
+ */
+
+describe("Mentor Router PUT: Update Mentor Tools", () => {
+  it("(o) Should return a successful message when requested successfully.", async () => {
+    const res = await request(server)
+      .put("/mentor/update/tools")
+      .set("Authorization", mentorToken)
+      .send({
+        tools: [MENTOR_TOOLS.AFFINITY_DESIGNER, MENTOR_TOOLS.ADOBE_PHOTOSHOP],
+      })
+
+    const updatedMentor = await findMentorBy({ id: mentorId })
+    expect(res.status).toBe(200)
+    expect(res.body.status).toBe("ok")
+    expect(res.body.message).toBe("Update successfully")
+    expect(updatedMentor?.mentorSkills.length).toBe(2)
+  })
+
+  it("(x) Should return an error with response code 4004 when the mentor is not found.", async () => {
+    const res = await request(server)
+      .put("/mentor/update/tools")
+      .set("Authorization", NOT_EXISTS_TOKEN)
+      .send({
+        tools: [MENTOR_TOOLS.AFFINITY_DESIGNER, MENTOR_TOOLS.ADOBE_PHOTOSHOP],
+      })
+
+    expect(res.status).toBe(401)
+    expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)
+  })
+
+  it("(x) Should return an error with response code 4001 when the tool array is empty.", async () => {
+    const res = await request(server)
+      .put("/mentor/update/tools")
+      .set("Authorization", mentorToken)
+      .send({
+        tools: [],
+      })
+
+    expect(res.status).toBe(422)
+    expect(res.body.code).toBe(RESPONSE_CODE.VALIDATE_ERROR)
+  })
+
+  it("(x) Should return an error with response code 4001 when the item doesn't follow the validation.", async () => {
+    const res = await request(server)
+      .put("/mentor/update/tools")
+      .set("Authorization", mentorToken)
+      .send({
+        tools: ["first tool"],
+      })
+
+    expect(res.status).toBe(422)
+    expect(res.body.code).toBe(RESPONSE_CODE.VALIDATE_ERROR)
+  })
+})
+
+/*
+ *  [PUT] Update Mentor Tools
+ *
+ *  (o) Should return a successful message when requested successfully.
+ *
+ *  (x) Should return an error with response code 4004 when the mentor is not found.
+ *
+ *  (x) Should return an error with response code 4001 when the tool array is empty.
+ *
+ *  (x) Should return an error with response code 4001 when the item doesn't follow the validation.
  *
  */

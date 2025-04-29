@@ -1,7 +1,5 @@
-export interface IMember {
+export interface IMemberInfo {
   userName: string
-  email: string
-  password: string
   gender: string
   country: string
   title: string
@@ -11,6 +9,11 @@ export interface IMember {
   introduction: string
   level: LEVEL_OF_EXPERIENCE
   fieldOfWork: string[]
+}
+
+export interface IMember extends IMemberInfo {
+  email: string
+  password: string
 }
 
 export interface IMemberRequestBody extends IMember {

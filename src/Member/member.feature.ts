@@ -1,8 +1,8 @@
-import { IMemberRequestBody } from "~/Member/types"
+import { IMemberInfo, IMemberRequestBody } from "~/Member/types"
 import bcrypt from "bcrypt"
 import { RESPONSE_CODE } from "~/types"
 import { generateToken } from "~/utils/account"
-import { addMember, findMemberBy } from "./member.model"
+import { addMember, findMemberBy, updateMember } from "./member.model"
 import { Member } from "~/db/entities/Member"
 import FeatureError from "~/utils/FeatureError"
 import { parseImageUrl, uploadFiles } from "~/utils/assetHelper"
@@ -51,6 +51,22 @@ export const getMember = async (memberId: string) => {
       )
     }
     return member
+  } catch (error) {
+    throw error
+  }
+}
+
+export const updateMemberInfo = async ({
+  userId,
+  data,
+}: {
+  userId: string
+  data: IMemberInfo
+}) => {
+  try {
+    const res = await updateMember({ userId, data })
+
+    return res
   } catch (error) {
     throw error
   }

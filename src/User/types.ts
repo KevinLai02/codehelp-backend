@@ -20,3 +20,14 @@ export enum USER_IDENTITY {
   MENTOR = "mentor",
   MEMBER = "member",
 }
+
+export interface IUpdateAvatar {
+  userId: string
+  avatar: Express.Multer.File[]
+  identity: USER_IDENTITY
+}
+
+export interface IUpdateAvatarModel {
+  userId: string
+  avatar: string
+}

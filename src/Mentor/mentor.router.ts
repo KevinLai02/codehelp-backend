@@ -8,12 +8,20 @@ import {
   getMentorList,
   modifyAvailableTime,
   signUp,
+  updateDisciplinesController,
+  updateMentorInfoController,
+  updateSkillsController,
+  updateToolsController,
 } from "./mentor.controller"
 import {
   getMentorInfoSchema,
   searchSchema,
   signUpSchema,
   updateAvailableTimeSchema,
+  updateDisciplineSchema,
+  updateMentorInfoSchema,
+  updateSkillSchema,
+  updateToolSchema,
 } from "./param-validation"
 
 const router = express.Router()
@@ -34,4 +42,19 @@ router
   .route("/updateAvailableTime")
   .put(validation(updateAvailableTimeSchema), auth, modifyAvailableTime)
 
+router
+  .route("/update/info")
+  .put(validation(updateMentorInfoSchema), auth, updateMentorInfoController)
+
+router
+  .route("/update/disciplines")
+  .put(validation(updateDisciplineSchema), auth, updateDisciplinesController)
+
+router
+  .route("/update/skills")
+  .put(validation(updateSkillSchema), auth, updateSkillsController)
+
+router
+  .route("/update/tools")
+  .put(validation(updateToolSchema), auth, updateToolsController)
 export default router

@@ -94,27 +94,31 @@ export enum MENTOR_TOOLS {
   KOTLIN = "Kotlin",
   XAMARIN = "Xamarin",
 }
-export interface IMentor {
+
+export interface IMentorInfo {
   userName: string
-  email: string
-  password: string
   gender: string
   country: string
   title: string
   company: string
   phoneNumber: string
-  emailOtp?: boolean
   introduction: string
   level: number
   linkedInURL: string
   primaryExpertise: string
   secondaryExpertise?: string
   tertiaryExpertise?: string
+  education: string
+  quickReply: boolean
+}
+
+export interface IMentor extends IMentorInfo {
+  email: string
+  password: string
+  emailOtp?: boolean
   disciplines: MENTOR_DISCIPLINES[]
   skills: MENTOR_SKILLS[]
   tools: MENTOR_TOOLS[]
-  quickReply: boolean
-  education: string
 }
 
 export interface IMentorRequestBody extends IMentor {
