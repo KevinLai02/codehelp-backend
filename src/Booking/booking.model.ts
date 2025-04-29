@@ -1,16 +1,16 @@
+import dataSource from "~/db/dataSource"
 import { Booking } from "~/db/entities/Booking"
+import { BookingMember } from "~/db/entities/BookingMember"
+import testDataSource from "~/db/testDataSource"
 import {
-  ICheckIsBooked,
+  IBookingCompleteModel,
   IBookingRecord,
+  ICheckIsBooked,
   IGetBookingRecordsModel,
   INewBookingMemberModel,
   INewBookingModel,
   IUpdateBookingStatus,
-  IBookingCompleteModel,
 } from "./types"
-import { BookingMember } from "~/db/entities/BookingMember"
-import dataSource from "~/db/dataSource"
-import testDataSource from "~/db/testDataSource"
 
 export const addBooking = ({
   host,

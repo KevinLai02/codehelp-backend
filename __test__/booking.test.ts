@@ -1,10 +1,19 @@
+import bcrypt from "bcrypt"
 import bodyParser from "body-parser"
+import { format } from "date-fns"
 import express, { Express } from "express"
 import request from "supertest"
+import bookingRouter from "~/Booking/booking.router"
+import { BOOKING_STATUS, BOOKING_STATUS_LABELS } from "~/Booking/types"
+import { addMentorIdToAvailableTimeList } from "~/Mentor/utils"
+import { BookingMember } from "~/db/entities/BookingMember"
+import { Member } from "~/db/entities/Member"
+import { Mentor } from "~/db/entities/Mentor"
 import { RESPONSE_CODE } from "~/types"
-import { SQLite } from "./utils/sqlite.config"
+import { generateToken } from "~/utils/account"
+import { addMember } from "../src/Member/member.model"
 import { updateAvailableTime } from "../src/Mentor/mentor.model"
-import bcrypt from "bcrypt"
+import { addOneMentor } from "./utils/addOneMentor"
 import {
   AVAILABLE_TIME,
   MEMBER,
@@ -12,17 +21,8 @@ import {
   MENTOR_TWO,
   NOT_EXISTS_ID,
 } from "./utils/constant"
-import { addMember } from "../src/Member/member.model"
-import { Member } from "~/db/entities/Member"
-import { Mentor } from "~/db/entities/Mentor"
-import { generateToken } from "~/utils/account"
-import { BOOKING_STATUS, BOOKING_STATUS_LABELS } from "~/Booking/types"
-import bookingRouter from "~/Booking/booking.router"
-import { addMentorIdToAvailableTimeList } from "~/Mentor/utils"
-import { BookingMember } from "~/db/entities/BookingMember"
-import { format } from "date-fns"
-import { addOneMentor } from "./utils/addOneMentor"
 import { generateNotExistsToken } from "./utils/generateNotExistsToken"
+import { SQLite } from "./utils/sqlite.config"
 
 let server: Express
 const sqlite = new SQLite()
@@ -38,6 +38,12 @@ const BOOKING_DATA = {
   QUESTION: "The booking feature testing.",
   BOOKING_TIME: "2025/03/04 11:00",
   DURATION: 30,
+}
+const UPDATE_BOOKING_DATA = {
+  topic: "update booking topic",
+  question: "The booking update feature testing.",
+  bookingTime: "2025/04/01 11:00",
+  duration: 60,
 }
 const NOT_EXISTS_TOKEN = generateNotExistsToken()
 const ERROR_BOOKING_STATUS = "error"
@@ -91,6 +97,7 @@ describe("Booking router Post: Create a booking", () => {
       .field("duration", BOOKING_DATA.DURATION)
       .field("memberIds[0]", member.id)
       .set("Authorization", memberToken)
+
     bookingId = res.body.booking.id
 
     expect(res.status).toBe(200)

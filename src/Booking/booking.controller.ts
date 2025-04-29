@@ -1,13 +1,13 @@
 import { IApi } from "~/types"
-import {
-  getBookingRecords,
-  getBookingRecord,
-  newBooking,
-  deleteBookingRecord,
-  updateBookingStatus,
-  updateBookingComplete,
-} from "./booking.feature"
 import errorHandler from "~/utils/errorHandler"
+import {
+  deleteBookingRecord,
+  getBookingRecord,
+  getBookingRecords,
+  newBooking,
+  updateBookingComplete,
+  updateBookingStatus,
+} from "./booking.feature"
 import { BOOKING_STATUS, BOOKING_STATUS_LABELS } from "./types"
 
 export const newBookingController: IApi = async (req, res) => {

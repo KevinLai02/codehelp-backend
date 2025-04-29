@@ -1,12 +1,9 @@
 import express from "express"
 import auth from "~/middleware/auth"
 
+import { uploadFiles } from "~/middleware/file"
 import { validation } from "~/middleware/validation"
-import {
-  bookingCompleteSchema,
-  newBookingSchema,
-  updateStatusSchema,
-} from "./param-validation"
+import { paginationSchema } from "~/utils/common-param-validation"
 import {
   deleteBookingRecordController,
   getBookingRecordController,
@@ -15,8 +12,11 @@ import {
   updateBookingCompleteController,
   updateBookingStatusController,
 } from "./booking.controller"
-import { uploadFiles } from "~/middleware/file"
-import { paginationSchema } from "~/utils/common-param-validation"
+import {
+  bookingCompleteSchema,
+  newBookingSchema,
+  updateStatusSchema,
+} from "./param-validation"
 
 const router = express.Router()
 
