@@ -1,0 +1,271 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model booking {
+  id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  host_id        String           @db.Uuid
+  topic          String?          @default("Blank") @db.VarChar(30)
+  question       String
+  picture        String[]         @default([]) @db.VarChar(200)
+  booking_status Int              @default(0) @db.SmallInt
+  booking_at     DateTime         @db.Timestamp(6)
+  duration       Int              @db.SmallInt
+  created_at     DateTime?        @default(now()) @db.Timestamp(6)
+  mentor         mentor           @relation(fields: [host_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_booking_mentor")
+  booking_member booking_member[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model booking_member {
+  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  booking_id String  @db.Uuid
+  member_id  String  @db.Uuid
+  booking    booking @relation(fields: [booking_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_booking")
+  member     member  @relation(fields: [member_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_booking_member_id")
+
+  @@unique([booking_id, member_id])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model chatroom {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  mentor_id  String    @db.Uuid
+  member_id  String    @db.Uuid
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  member     member    @relation(fields: [member_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_chatroom_member")
+  mentor     mentor    @relation(fields: [mentor_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_chatroom_mentor")
+  message    message[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model member {
+  id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_name      String           @db.VarChar(30)
+  email          String           @unique
+  password       String           @db.VarChar(72)
+  avatar         String
+  gender         String           @db.Char(1)
+  country        String           @db.Char(2)
+  title          String           @db.VarChar(100)
+  company        String           @db.VarChar(100)
+  phone_number   String           @db.Char(20)
+  email_otp      Boolean          @default(false)
+  introduction   String
+  level          Int              @db.SmallInt
+  field_of_work  Json
+  created_at     DateTime         @default(now()) @db.Timestamp(6)
+  updated_at     DateTime         @default(now()) @db.Timestamp(6)
+  booking_member booking_member[]
+  chatroom       chatroom[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model mentor {
+  id                    String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_name             String                  @db.VarChar(30)
+  email                 String                  @unique
+  password              String                  @db.VarChar(72)
+  avatar                String
+  gender                String                  @db.Char(1)
+  country               String                  @db.Char(2)
+  title                 String                  @db.VarChar(100)
+  company               String                  @db.VarChar(100)
+  phone_number          String                  @db.Char(20)
+  email_otp             Boolean                 @default(false)
+  introduction          String
+  level                 Int                     @default(0) @db.SmallInt
+  url                   String
+  primary_expertise     String                  @db.VarChar(100)
+  secondary_expertise   String                  @default("") @db.VarChar(100)
+  tertiary_expertise    String                  @default("") @db.VarChar(100)
+  created_at            DateTime                @default(now()) @db.Timestamp(6)
+  updated_at            DateTime                @default(now()) @db.Timestamp(6)
+  quick_reply           Boolean                 @default(false)
+  experience            Json                    @default("[]")
+  education             String                  @default("") @db.VarChar(50)
+  booking               booking[]
+  chatroom              chatroom[]
+  mentor_available_time mentor_available_time[]
+  mentor_disciplines    mentor_disciplines[]
+  mentor_skills         mentor_skills[]
+  mentor_tools          mentor_tools[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model mentor_available_time {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  mentor_id String    @db.Uuid
+  day       week_days
+  time_code Int[]
+  mentor    mentor    @relation(fields: [mentor_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_mentor_available_time")
+
+  @@unique([mentor_id, day])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model mentor_disciplines {
+  id         String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  mentor_id  String      @db.Uuid
+  discipline disciplines
+  created_at DateTime    @default(now()) @db.Timestamp(6)
+  mentor     mentor      @relation(fields: [mentor_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_mentor_discipline")
+
+  @@unique([mentor_id, discipline])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model mentor_skills {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  mentor_id  String   @db.Uuid
+  skill      skills
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  mentor     mentor   @relation(fields: [mentor_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_mentor_skill")
+
+  @@unique([mentor_id, skill])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model mentor_tools {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  mentor_id  String   @db.Uuid
+  tool       tools
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  mentor     mentor   @relation(fields: [mentor_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_mentor_tool")
+
+  @@unique([mentor_id, tool])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model message {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  chatroom_id String   @db.Uuid
+  user_id     String   @db.Uuid
+  content     String
+  created_at  DateTime @default(now()) @db.Timestamp(6)
+  type        Int      @default(0) @db.SmallInt
+  chatroom    chatroom @relation(fields: [chatroom_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_message_chatroom")
+}
+
+model migrations {
+  id        Int    @id(map: "PK_8c82d7f526340ab734260ea46be") @default(autoincrement())
+  timestamp BigInt
+  name      String @db.VarChar
+}
+
+/// This enum is commented in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+enum disciplines {
+  Computer_Science        @map("Computer Science")
+  Engineering
+  Business_Administration @map("Business Administration")
+  Medicine
+  Law
+  Design
+  Psychology
+  Biology
+  Economics
+  Sociology
+}
+
+/// This enum is commented in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+enum skills {
+  HTML
+  CSS
+  JavaScript
+  TypeScript
+  React
+  Vue_js           @map("Vue.js")
+  Angular
+  Node_js          @map("Node.js")
+  Express_js       @map("Express.js")
+  Python
+  Django
+  Flask
+  Ruby
+  Ruby_on_Rails    @map("Ruby on Rails")
+  Java
+  Spring
+  PHP
+  Laravel
+  C_               @map("C#")
+  ASP_NET          @map("ASP.NET")
+  Swift
+  Kotlin
+  Flutter
+  React_Native     @map("React Native")
+  SQL
+  NoSQL
+  Git
+  Docker
+  Kubernetes
+  CI_CD            @map("CI/CD")
+  Machine_Learning @map("Machine Learning")
+  Data_Analysis    @map("Data Analysis")
+  UI_UX_Design     @map("UI/UX Design")
+  Adobe_Photoshop  @map("Adobe Photoshop")
+  Sketch
+  Figma
+  InVision
+  Prototyping
+  Cybersecurity
+}
+
+/// This enum is commented in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+enum tools {
+  React
+  Vue_js            @map("Vue.js")
+  Angular
+  HTML
+  CSS
+  JavaScript
+  Node_js           @map("Node.js")
+  Django
+  Flask
+  Ruby_on_Rails     @map("Ruby on Rails")
+  Spring
+  Express_js        @map("Express.js")
+  MEAN_Stack        @map("MEAN Stack")
+  MERN_Stack        @map("MERN Stack")
+  LAMP_Stack        @map("LAMP Stack")
+  GraphQL
+  Firebase
+  Figma
+  Sketch
+  Adobe_XD          @map("Adobe XD")
+  InVision
+  Axure_RP          @map("Axure RP")
+  Adobe_Photoshop   @map("Adobe Photoshop")
+  Adobe_Illustrator @map("Adobe Illustrator")
+  CorelDRAW
+  Affinity_Designer @map("Affinity Designer")
+  Inkscape
+  Docker
+  Kubernetes
+  Jenkins
+  Ansible
+  Terraform
+  React_Native      @map("React Native")
+  Flutter
+  Swift
+  Kotlin
+  Xamarin
+}
+
+/// This enum is commented in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+enum week_days {
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+  SUN
+}
