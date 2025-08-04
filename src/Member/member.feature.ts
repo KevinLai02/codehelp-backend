@@ -1,73 +1,73 @@
-import { IMemberInfo, IMemberRequestBody } from "~/Member/types"
-import bcrypt from "bcrypt"
-import { RESPONSE_CODE } from "~/types"
-import { generateToken } from "~/utils/account"
-import { addMember, findMemberBy, updateMember } from "./member.model"
-import { Member } from "~/db/entities/Member"
-import FeatureError from "~/utils/FeatureError"
-import { parseImageUrl, uploadFiles } from "~/utils/assetHelper"
+import bcrypt from 'bcrypt';
+import type { Member } from '~/db/entities/Member';
+import type { IMemberInfo, IMemberRequestBody } from '~/Member/types';
+import { RESPONSE_CODE } from '~/types';
+import { generateToken } from '~/utils/account';
+import { parseImageUrl, uploadFiles } from '~/utils/assetHelper';
+import FeatureError from '~/utils/FeatureError';
+import { addMember, findMemberBy, updateMember } from './member.model';
 
 export const save = async (
-  data: IMemberRequestBody,
+  data: IMemberRequestBody
 ): Promise<{ newMember: Member; token: string }> => {
   try {
-    const { email, password, avatar } = data
-    const isEmailExist = await findMemberBy({ email })
+    const { email, password, avatar } = data;
+    const isEmailExist = await findMemberBy({ email });
     if (isEmailExist) {
       throw new FeatureError(
         403,
         RESPONSE_CODE.DATA_DUPLICATE,
-        `Email: ${email} has been created`,
-      )
+        `Email: ${email} has been created`
+      );
     }
 
-    const result = await uploadFiles([avatar[0]])
-    const [avatarImageId] = result
+    const result = await uploadFiles([avatar[0]]);
+    const [avatarImageId] = result;
 
-    const encryptedPassword = await bcrypt.hash(password, 10)
+    const encryptedPassword = await bcrypt.hash(password, 10);
     const newMember = await addMember({
       ...data,
       avatar: parseImageUrl(avatarImageId),
       password: encryptedPassword,
-    })
+    });
 
-    const token = generateToken(newMember)
-    delete newMember.password
+    const token = generateToken(newMember);
+    delete newMember.password;
 
-    return { newMember, token }
+    return { newMember, token };
   } catch (error) {
-    throw error
+    throw error;
   }
-}
+};
 
 export const getMember = async (memberId: string) => {
   try {
-    const member = await findMemberBy({ id: memberId })
+    const member = await findMemberBy({ id: memberId });
     if (!member) {
       throw new FeatureError(
         403,
         RESPONSE_CODE.TARGET_NOT_EXISTS,
-        "Member not found.",
-      )
+        'Member not found.'
+      );
     }
-    return member
+    return member;
   } catch (error) {
-    throw error
+    throw error;
   }
-}
+};
 
 export const updateMemberInfo = async ({
   userId,
   data,
 }: {
-  userId: string
-  data: IMemberInfo
+  userId: string;
+  data: IMemberInfo;
 }) => {
   try {
-    const res = await updateMember({ userId, data })
+    const res = await updateMember({ userId, data });
 
-    return res
+    return res;
   } catch (error) {
-    throw error
+    throw error;
   }
-}
+};
