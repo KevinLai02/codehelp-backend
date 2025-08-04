@@ -1,8 +1,8 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class MessageTableAddType1739002234633 implements MigrationInterface {
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    queryRunner.query(`
+  async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             ALTER TABLE message
                 ADD "type"  SMALLINT    DEFAULT 0   NOT NULL;
 
@@ -10,8 +10,8 @@ export class MessageTableAddType1739002234633 implements MigrationInterface {
         `);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    queryRunner.query(`
+  async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             ALTER TABLE message
                 DROP COLUMN "type";
         `);

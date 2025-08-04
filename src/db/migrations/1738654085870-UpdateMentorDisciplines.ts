@@ -3,8 +3,8 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
 export class UpdateMentorDisciplines1738654085870
   implements MigrationInterface
 {
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    queryRunner.query(`
+  async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             CREATE TYPE DISCIPLINES AS ENUM (
                 'Computer Science',
                 'Engineering',
@@ -38,8 +38,8 @@ export class UpdateMentorDisciplines1738654085870
     `);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    queryRunner.query(`
+  async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
           DROP TABLE IF EXISTS mentor_disciplines;
           DROP TYPE IF EXISTS DISCIPLINES;
           ALTER TABLE mentor ADD COLUMN disciplines JSONB DEFAULT '[]'::JSONB NOT NULL;

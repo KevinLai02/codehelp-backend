@@ -1,8 +1,8 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class CreateBookingTable1734304167532 implements MigrationInterface {
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    queryRunner.query(`
+  async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             CREATE TABLE booking (
                 id                  UUID                            DEFAULT gen_random_uuid(),
                 host_id             UUID                                                        NOT NULL,
@@ -30,8 +30,8 @@ export class CreateBookingTable1734304167532 implements MigrationInterface {
         `);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    queryRunner.query(`
+  async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             DROP TABLE booking;
         `);
   }

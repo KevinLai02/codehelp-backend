@@ -1,8 +1,8 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class UpdateMentorSkills1739172042016 implements MigrationInterface {
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    queryRunner.query(`
+  async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             CREATE TYPE SKILLS AS ENUM (
                 'HTML',
                 'CSS',
@@ -65,8 +65,8 @@ export class UpdateMentorSkills1739172042016 implements MigrationInterface {
     `);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    queryRunner.query(`
+  async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             DROP TABLE IF EXISTS mentor_skills;
             DROP TYPE IF EXISTS SKILLS;
             ALTER TABLE mentor ADD COLUMN skills JSONB DEFAULT '[]'::JSONB NOT NULL;

@@ -1,8 +1,8 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class CreateMessageTable1730770273605 implements MigrationInterface {
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    queryRunner.query(`
+  async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             CREATE TABLE message (
                 id                  UUID                            DEFAULT gen_random_uuid()   NOT NULL,
                 chatroom_id         UUID                                                        NOT NULL,
@@ -22,8 +22,8 @@ export class CreateMessageTable1730770273605 implements MigrationInterface {
         `);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    queryRunner.query(`
+  async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
         DROP TABLE message;
     `);
   }

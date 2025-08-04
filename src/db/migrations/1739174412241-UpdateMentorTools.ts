@@ -1,8 +1,8 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class UpdateMentorTools1739174412241 implements MigrationInterface {
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    queryRunner.query(`
+  async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
         CREATE TYPE TOOLS AS ENUM (
                 'React',
                 'Vue.js',
@@ -63,8 +63,8 @@ export class UpdateMentorTools1739174412241 implements MigrationInterface {
     `);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    queryRunner.query(`
+  async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
         DROP TABLE IF EXISTS mentor_tools;
         DROP TYPE IF EXISTS TOOLS;
         ALTER TABLE mentor ADD COLUMN tools JSONB DEFAULT '[]'::JSONB NOT NULL;

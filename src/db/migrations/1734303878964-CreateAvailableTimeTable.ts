@@ -3,8 +3,8 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
 export class CreateAvailableTimeTable1734303878964
   implements MigrationInterface
 {
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    queryRunner.query(`
+  async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             CREATE TYPE WEEK_DAYS AS ENUM ('MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN');
 
             CREATE TABLE mentor_available_time (
@@ -30,8 +30,8 @@ export class CreateAvailableTimeTable1734303878964
         `);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    queryRunner.query(`
+  async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             DROP TABLE mentor_available_time;
             DROP TYPE WEEK_DAYS;
         `);

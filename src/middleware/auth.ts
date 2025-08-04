@@ -9,7 +9,22 @@ import { RESPONSE_CODE } from '../types';
 const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const token = req?.headers?.authorization?.split(' ')[1];
-    const decoded = jwt.verify(token!, process.env.TOKEN!) as JwtPayload;
+    const secret = process.env.TOKEN;
+    if (!token) {
+      return res.status(401).send({
+        code: RESPONSE_CODE.USER_DATA_ERROR,
+        status: 'error',
+        message: 'Missing authentication token',
+      });
+    }
+    if (!secret) {
+      return res.status(401).send({
+        code: RESPONSE_CODE.USER_DATA_ERROR,
+        status: 'error',
+        message: 'Missing authentication secret',
+      });
+    }
+    const decoded = jwt.verify(token, secret) as JwtPayload;
     const userId = decoded.id;
 
     if (!userId) {

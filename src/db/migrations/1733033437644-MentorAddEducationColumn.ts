@@ -3,8 +3,8 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
 export class MentorAddEducationColumn1733033437644
   implements MigrationInterface
 {
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    queryRunner.query(`
+  async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             ALTER TABLE mentor
             ADD education varchar(50) DEFAULT '' NOT NULL;
 
@@ -12,8 +12,8 @@ export class MentorAddEducationColumn1733033437644
         `);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    queryRunner.query(`
+  async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             ALTER TABLE mentor
             DROP COLUMN education;
         `);

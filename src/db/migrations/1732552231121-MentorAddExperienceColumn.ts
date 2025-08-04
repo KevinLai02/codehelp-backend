@@ -3,8 +3,8 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
 export class MentorAddExperienceColumn1732552231121
   implements MigrationInterface
 {
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    queryRunner.query(`
+  async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             ALTER TABLE mentor
             ADD experience JSONB DEFAULT '[]'::JSONB NOT NULL;
 
@@ -12,8 +12,8 @@ export class MentorAddExperienceColumn1732552231121
         `);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    queryRunner.query(`
+  async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             ALTER TABLE mentor
             DROP COLUMN experience;
         `);

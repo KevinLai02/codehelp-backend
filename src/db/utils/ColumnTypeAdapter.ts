@@ -32,6 +32,9 @@ export function ColumnTypeAdapter(
       case 'timestamp without time zone':
         newType = 'text';
         break;
+      default:
+        // No change for other types
+        break;
     }
   }
 

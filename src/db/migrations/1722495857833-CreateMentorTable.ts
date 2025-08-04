@@ -1,8 +1,8 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class CreateMentorTable1722495857833 implements MigrationInterface {
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    queryRunner.query(`
+  async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             CREATE TABLE IF NOT EXISTS mentor (
                 id                      UUID                            DEFAULT gen_random_uuid()   NOT NULL,
                 user_name               VARCHAR(30)                                                 NOT NULL,
@@ -56,8 +56,8 @@ export class CreateMentorTable1722495857833 implements MigrationInterface {
         `);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    queryRunner.query(`
+  async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             DROP TABLE mentor;
         `);
   }

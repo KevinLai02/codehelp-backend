@@ -29,7 +29,6 @@ export const createServer = async () => {
   app.use('/image', imageRouter);
   app.use('/chatroom', [chatroomRouter, messageRouter]);
 
-  app.use((_req: Request) => {});
   app.use((err: ValidationError, _req: Request, res: Response) => {
     if (err) {
       return res.status(err.statusCode).json(err);
@@ -52,6 +51,8 @@ const init = async () => {
     WebRTCSocket(socket, io);
   });
   const port = process.env.PORT || 3001;
-  serverForSocket.listen(Number(port), '0.0.0.0', () => {});
+  serverForSocket.listen(Number(port), '0.0.0.0', () => {
+    // Server started on http://0.0.0.0:${port}
+  });
 };
 export default init();
