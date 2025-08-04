@@ -55,20 +55,27 @@ export const save = async (
     password: encryptedPassword,
   });
 
+  if (!newMentor.id) {
+    throw new FeatureError(
+      500,
+      RESPONSE_CODE.VALIDATE_ERROR,
+      'Failed to create mentor: missing mentor ID.'
+    );
+  }
   const mentorDisciplines: IMentorDisciplines[] = disciplines.map(
     (disciplineName) => ({
-      mentorId: newMentor.id!,
+      mentorId: newMentor.id,
       discipline: disciplineName,
     })
   );
 
   const mentorSkills: IMentorSkills[] = skills.map((skillName) => ({
-    mentorId: newMentor.id!,
+    mentorId: newMentor.id,
     skill: skillName,
   }));
 
   const mentorTools: IMentorTools[] = tools.map((toolName) => ({
-    mentorId: newMentor.id!,
+    mentorId: newMentor.id,
     tool: toolName,
   }));
 
@@ -80,10 +87,18 @@ export const save = async (
 
   const newMentorData = await findMentorBy({ id: newMentor.id });
 
-  const token = generateToken(newMentorData!);
-  newMentorData!.password = undefined;
+  if (!newMentorData) {
+    throw new FeatureError(
+      500,
+      RESPONSE_CODE.USER_DATA_ERROR,
+      'Failed to retrieve newly created mentor data.'
+    );
+  }
 
-  return { newMentor: newMentorData!, token };
+  const token = generateToken(newMentorData);
+  newMentorData.password = undefined;
+
+  return { newMentor: newMentorData, token };
 };
 
 export const getInfo = async ({ id }: { id: string }): Promise<Mentor> => {
