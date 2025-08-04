@@ -1,17 +1,17 @@
-import { validation } from "~/middleware/validation"
-import express from "express"
-import { getMessageRecordsSchema, newMessageSchema } from "./param-validation"
-import { getMessageRecordsController, newMessage } from "./message.controller"
-import auth from "~/middleware/auth"
+import express from 'express';
+import auth from '~/middleware/auth';
+import { validation } from '~/middleware/validation';
+import { getMessageRecordsController, newMessage } from './message.controller';
+import { getMessageRecordsSchema, newMessageSchema } from './param-validation';
 
-const router = express.Router()
-
-router
-  .route("/:chatroomId/newMessage")
-  .post(validation(newMessageSchema), auth, newMessage)
+const router = express.Router();
 
 router
-  .route("/:chatroomId/message/record")
-  .get(validation(getMessageRecordsSchema), auth, getMessageRecordsController)
+  .route('/:chatroomId/newMessage')
+  .post(validation(newMessageSchema), auth, newMessage);
 
-export default router
+router
+  .route('/:chatroomId/message/record')
+  .get(validation(getMessageRecordsSchema), auth, getMessageRecordsController);
+
+export default router;

@@ -1,14 +1,14 @@
-import { IAvailableTime, IUpdateAvailableTime } from "./types"
+import type { IAvailableTime, IUpdateAvailableTime } from './types';
 
 export const addMentorIdToAvailableTimeList = (
   availableTimeList: IAvailableTime[],
-  mentorId: string,
+  mentorId: string
 ): IUpdateAvailableTime[] =>
   availableTimeList.map((item) => ({
     ...item,
-    mentorId: mentorId,
+    mentorId,
     timeCode:
-      process.env.NODE_ENV === "test"
+      process.env.NODE_ENV === 'test'
         ? JSON.stringify(item.timeCode)
         : item.timeCode,
-  }))
+  }));

@@ -1,22 +1,22 @@
-import { Mentor } from "~/db/entities/Mentor"
+import bcrypt from 'bcrypt';
+import type { Mentor } from '~/db/entities/Mentor';
 import {
   addMentor,
   addMentorDisciplines,
   addMentorSkills,
   addMentorTools,
   findMentorBy,
-} from "~/Mentor/mentor.model"
-import { IMentorModel } from "~/Mentor/types"
-import bcrypt from "bcrypt"
+} from '~/Mentor/mentor.model';
+import type { IMentorModel } from '~/Mentor/types';
 
 export const addOneMentor = async (
-  mentorData: IMentorModel,
+  mentorData: IMentorModel
 ): Promise<{ newMentorData: Mentor; newMentorId: string }> => {
-  const encryptedMentorPassword = await bcrypt.hash(mentorData.password, 10)
+  const encryptedMentorPassword = await bcrypt.hash(mentorData.password, 10);
   const mentor = await addMentor({
     ...mentorData,
     password: encryptedMentorPassword,
-  })
+  });
 
   await Promise.all([
     addMentorDisciplines([
@@ -37,8 +37,8 @@ export const addOneMentor = async (
         tool: mentorData.tools[0],
       },
     ]),
-  ])
-  const newMentorData = await findMentorBy({ id: mentor.id })
+  ]);
+  const newMentorData = await findMentorBy({ id: mentor.id });
 
-  return { newMentorData: newMentorData!, newMentorId: mentor.id }
-}
+  return { newMentorData: newMentorData!, newMentorId: mentor.id };
+};

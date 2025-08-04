@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from "typeorm"
+import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class UpdateMentorTools1739174412241 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -60,7 +60,7 @@ export class UpdateMentorTools1739174412241 implements MigrationInterface {
         COMMENT ON COLUMN mentor_tools.mentor_id IS 'The UUID of the mentor associated with a specific tool'; 
         COMMENT ON COLUMN mentor_tools.tool IS 'The tool that the mentor specializes in, using the TOOLS enum to ensure valid values';
         COMMENT ON COLUMN mentor_tools.created_at IS 'The mentor_tools create time';
-    `)
+    `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
@@ -68,6 +68,6 @@ export class UpdateMentorTools1739174412241 implements MigrationInterface {
         DROP TABLE IF EXISTS mentor_tools;
         DROP TYPE IF EXISTS TOOLS;
         ALTER TABLE mentor ADD COLUMN tools JSONB DEFAULT '[]'::JSONB NOT NULL;
-    `)
+    `);
   }
 }

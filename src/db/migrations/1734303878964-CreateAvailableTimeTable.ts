@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from "typeorm"
+import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class CreateAvailableTimeTable1734303878964
   implements MigrationInterface
@@ -27,13 +27,13 @@ export class CreateAvailableTimeTable1734303878964
             COMMENT ON COLUMN mentor_available_time.day IS 'The day of the week, stored as an abbreviation (e.g., mon, tue, wed), using the WEEK_DAYS enum to ensure valid values.';
             COMMENT ON COLUMN mentor_available_time.time_code IS 'An array representing available time slots within 24 hours (e.g., [1,2,4,6,8,24]).';
             COMMENT ON CONSTRAINT check_time_code ON mentor_available_time IS 'Make sure the value of the time_code array is 1-24';
-        `)
+        `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     queryRunner.query(`
             DROP TABLE mentor_available_time;
             DROP TYPE WEEK_DAYS;
-        `)
+        `);
   }
 }

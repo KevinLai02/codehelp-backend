@@ -1,11 +1,14 @@
-import { RESPONSE_CODE } from "~/types"
+import type { RESPONSE_CODE } from '~/types';
 
 export default class FeatureError extends Error {
-  constructor(
-    public serverStatus: number,
-    public code: RESPONSE_CODE,
-    public message: string,
-  ) {
-    super()
+  serverStatus: number;
+  code: RESPONSE_CODE;
+  message: string;
+
+  constructor(serverStatus: number, code: RESPONSE_CODE, message: string) {
+    super();
+    this.serverStatus = serverStatus;
+    this.code = code;
+    this.message = message;
   }
 }

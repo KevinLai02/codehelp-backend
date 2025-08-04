@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from "typeorm"
+import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class CreateChatroomTable1728823692872 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -18,12 +18,12 @@ export class CreateChatroomTable1728823692872 implements MigrationInterface {
             COMMENT ON COLUMN chatroom.mentor_id IS 'Mentor UUID who is in this chatroom';
             COMMENT ON COLUMN chatroom.member_id IS 'Member UUID who is in this chatroom';
             COMMENT ON COLUMN chatroom.created_at IS 'Chatroom create time';
-        `)
+        `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     queryRunner.query(`
             DROP TABLE chatroom;
-        `)
+        `);
   }
 }

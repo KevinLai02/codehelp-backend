@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from "typeorm"
+import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class UpdateMentorDisciplines1738654085870
   implements MigrationInterface
@@ -35,7 +35,7 @@ export class UpdateMentorDisciplines1738654085870
             COMMENT ON COLUMN mentor_disciplines.mentor_id IS 'The UUID of the mentor associated with a specific discipline'; 
             COMMENT ON COLUMN mentor_disciplines.discipline IS 'The discipline that the mentor specializes in, using the DISCIPLINES enum to ensure valid values';
             COMMENT ON COLUMN mentor_disciplines.created_at IS 'The mentor_discipline create time';
-    `)
+    `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
@@ -43,6 +43,6 @@ export class UpdateMentorDisciplines1738654085870
           DROP TABLE IF EXISTS mentor_disciplines;
           DROP TYPE IF EXISTS DISCIPLINES;
           ALTER TABLE mentor ADD COLUMN disciplines JSONB DEFAULT '[]'::JSONB NOT NULL;
-    `)
+    `);
   }
 }

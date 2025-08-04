@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from "typeorm"
+import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class CreateMemberTable1722495200326 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -41,12 +41,12 @@ export class CreateMemberTable1722495200326 implements MigrationInterface {
             COMMENT ON COLUMN member.field_of_work IS 'Member field of work';
             COMMENT ON COLUMN member.created_at IS 'Member created time';
             COMMENT ON COLUMN member.updated_at IS 'Member Updated time';
-        `)
+        `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     queryRunner.query(`
             DROP TABLE member;
-        `)
+        `);
   }
 }

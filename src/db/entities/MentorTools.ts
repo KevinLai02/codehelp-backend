@@ -1,39 +1,43 @@
 import {
   BaseEntity,
-  Entity,
-  PrimaryGeneratedColumn,
   CreateDateColumn,
+  Entity,
+  Index,
   JoinColumn,
   ManyToOne,
-  Index,
-} from "typeorm"
-import { Mentor } from "./Mentor"
-import { MENTOR_TOOLS } from "~/Mentor/types"
-import { ColumnTypeAdapter } from "../utils/ColumnTypeAdapter"
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { MENTOR_TOOLS } from '~/Mentor/types';
+import { ColumnTypeAdapter } from '../utils/ColumnTypeAdapter';
+import { Mentor } from './Mentor';
 
-@Index("mentor_tools_mentor_id_tool_key", ["mentorId", "tool"], {
+@Index('mentor_tools_mentor_id_tool_key', ['mentorId', 'tool'], {
   unique: true,
 })
-@Entity("mentor_tools", { schema: "public" })
+@Entity('mentor_tools', { schema: 'public' })
 export class MentorTools extends BaseEntity {
-  @PrimaryGeneratedColumn("uuid")
-  id: string
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-  @ColumnTypeAdapter("uuid", { name: "mentor_id" })
-  mentorId: string
+  @ColumnTypeAdapter('uuid', { name: 'mentor_id' })
+  mentorId: string;
 
-  @ColumnTypeAdapter("enum", {
-    name: "tool",
+  @ColumnTypeAdapter('enum', {
+    name: 'tool',
     enum: MENTOR_TOOLS,
   })
-  tool: MENTOR_TOOLS
+  tool: MENTOR_TOOLS;
 
   @CreateDateColumn()
-  created_at: Date
+  created_at: Date;
 
-  @ManyToOne(() => Mentor, (mentor) => mentor.mentorTools, {
-    onDelete: "CASCADE",
-  })
-  @JoinColumn([{ name: "mentor_id", referencedColumnName: "id" }])
-  mentor: Mentor
+  @ManyToOne(
+    () => Mentor,
+    (mentor) => mentor.mentorTools,
+    {
+      onDelete: 'CASCADE',
+    }
+  )
+  @JoinColumn([{ name: 'mentor_id', referencedColumnName: 'id' }])
+  mentor: Mentor;
 }

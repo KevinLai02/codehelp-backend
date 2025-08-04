@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from "typeorm"
+import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class CreateBookingMemberTable1739000712002
   implements MigrationInterface
@@ -19,12 +19,12 @@ export class CreateBookingMemberTable1739000712002
             COMMENT ON COLUMN booking_member.id IS 'The record UUID';
             COMMENT ON COLUMN booking_member.booking_id IS 'The booking record which is member join';
             COMMENT ON COLUMN booking_member.member_id IS 'Which members made the booking';
-        `)
+        `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     queryRunner.query(`
             DROP TABLE booking_member;
-        `)
+        `);
   }
 }

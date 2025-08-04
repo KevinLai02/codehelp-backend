@@ -1,22 +1,22 @@
-import multer from "multer"
+import multer from 'multer';
 
 export interface File {
-  name: string
-  size: number
-  type: string
-  extension: string
-  content: ArrayBuffer
+  name: string;
+  size: number;
+  type: string;
+  extension: string;
+  content: ArrayBuffer;
 }
 export const uploadFiles = multer({
   limits: {
     // 限制上傳檔案的大小為 1MB
-    fileSize: 10000000,
+    fileSize: 10_000_000,
   },
-  fileFilter(req, file, cb) {
+  fileFilter(_req, file, cb) {
     // 只接受三種圖片格式
     if (!file.originalname.match(/\.(jpg|jpeg|png|webp|heic)$/)) {
-      cb(null, false)
+      cb(null, false);
     }
-    cb(null, true)
+    cb(null, true);
   },
-})
+});

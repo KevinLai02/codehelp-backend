@@ -4,14 +4,14 @@ export enum MESSAGE_TYPE {
 }
 
 export interface IGetMessageRecords {
-  userId: string
-  chatroomId: string
-  page: number
-  count: number
+  userId: string;
+  chatroomId: string;
+  page: number;
+  count: number;
 }
 
 export interface IGetMessageRecordsModel {
-  chatroomId: string
-  skip: number
-  count: number
+  chatroomId: string;
+  skip: number;
+  count: number;
 }

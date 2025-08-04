@@ -1,7 +1,7 @@
-import { Member } from "~/db/entities/Member"
-import { Mentor } from "~/db/entities/Mentor"
+import type { Member } from '~/db/entities/Member';
+import type { Mentor } from '~/db/entities/Mentor';
 
 export interface IChatroomModel {
-  mentor: Mentor
-  member: Member
+  mentor: Mentor;
+  member: Member;
 }

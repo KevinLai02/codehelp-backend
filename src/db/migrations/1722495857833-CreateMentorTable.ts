@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from "typeorm"
+import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class CreateMentorTable1722495857833 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -53,12 +53,12 @@ export class CreateMentorTable1722495857833 implements MigrationInterface {
             COMMENT ON COLUMN mentor.tools IS 'Mentor tools';
             COMMENT ON COLUMN mentor.created_at IS 'Mentor created time';
             COMMENT ON COLUMN mentor.updated_at IS 'Mentor Updated time';
-        `)
+        `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     queryRunner.query(`
             DROP TABLE mentor;
-        `)
+        `);
   }
 }

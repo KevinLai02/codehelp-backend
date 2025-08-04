@@ -1,22 +1,22 @@
-import { IFeatureError, RESPONSE_CODE } from "~/types"
-import FeatureError from "./FeatureError"
-import { Response } from "express"
+import type { Response } from 'express';
+import { type IFeatureError, RESPONSE_CODE } from '~/types';
+import FeatureError from './FeatureError';
 
 const errorHandler = (res: Response<IFeatureError>, error: unknown) => {
   if (error instanceof FeatureError) {
     res.status(error.serverStatus).send({
-      status: "error",
+      status: 'error',
       code: error.code,
       message: error.message,
-    })
+    });
   } else {
     res.status(500).send({
-      status: "error",
+      status: 'error',
       code: RESPONSE_CODE.UNKNOWN_ERROR,
       message: error,
-    })
-    throw error
+    });
+    throw error;
   }
-}
+};
 
-export default errorHandler
+export default errorHandler;

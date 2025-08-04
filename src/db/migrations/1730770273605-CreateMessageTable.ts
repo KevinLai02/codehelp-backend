@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from "typeorm"
+import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class CreateMessageTable1730770273605 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -19,12 +19,12 @@ export class CreateMessageTable1730770273605 implements MigrationInterface {
             COMMENT ON COLUMN message.user_id IS 'Sender UUID who send this message';
             COMMENT ON COLUMN message.content IS 'The message content';
             COMMENT ON COLUMN message.created_at IS 'message create time';
-        `)
+        `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     queryRunner.query(`
         DROP TABLE message;
-    `)
+    `);
   }
 }

@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from "typeorm"
+import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class UpdateMentorSkills1739172042016 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -62,7 +62,7 @@ export class UpdateMentorSkills1739172042016 implements MigrationInterface {
             COMMENT ON COLUMN mentor_skills.mentor_id IS 'The UUID of the mentor associated with a specific skill'; 
             COMMENT ON COLUMN mentor_skills.skill IS 'The skill that the mentor specializes in, using the SKILLS enum to ensure valid values';
             COMMENT ON COLUMN mentor_skills.created_at IS 'The mentor_skills create time';
-    `)
+    `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
@@ -70,6 +70,6 @@ export class UpdateMentorSkills1739172042016 implements MigrationInterface {
             DROP TABLE IF EXISTS mentor_skills;
             DROP TYPE IF EXISTS SKILLS;
             ALTER TABLE mentor ADD COLUMN skills JSONB DEFAULT '[]'::JSONB NOT NULL;
-    `)
+    `);
   }
 }

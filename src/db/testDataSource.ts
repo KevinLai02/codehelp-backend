@@ -1,11 +1,11 @@
-import path from "path"
-import { DataSource } from "typeorm"
+import path from 'node:path';
+import { DataSource } from 'typeorm';
 
 const testDataSource = new DataSource({
-  type: "better-sqlite3",
-  database: ":memory:",
+  type: 'better-sqlite3',
+  database: ':memory:',
   synchronize: true,
-  entities: [path.join(__dirname, "/entities/*{.ts,.js}")],
-})
+  entities: [path.join(__dirname, '/entities/*{.ts,.js}')],
+});
 
-export default testDataSource
+export default testDataSource;

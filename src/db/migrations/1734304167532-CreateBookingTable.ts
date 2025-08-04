@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from "typeorm"
+import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class CreateBookingTable1734304167532 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -27,12 +27,12 @@ export class CreateBookingTable1734304167532 implements MigrationInterface {
             COMMENT ON COLUMN booking.booking_at IS 'The member booking time';
             COMMENT ON COLUMN booking.duration IS 'The course duration';
             COMMENT ON COLUMN booking.created_at IS 'Booking create time';
-        `)
+        `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     queryRunner.query(`
             DROP TABLE booking;
-        `)
+        `);
   }
 }

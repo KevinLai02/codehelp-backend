@@ -1,31 +1,28 @@
-import testDataSource from "~/db/testDataSource"
-import SQLiteDB from "better-sqlite3"
-import { DataSource } from "typeorm"
+import SQLiteDB from 'better-sqlite3';
+import type { DataSource } from 'typeorm';
+import testDataSource from '~/db/testDataSource';
 
 export class SQLite {
-  private dataSource: DataSource
-  private sqliteDB: SQLiteDB.Database
+  private dataSource: DataSource;
+  private sqliteDB: SQLiteDB.Database;
 
   async setup() {
     try {
-      this.sqliteDB = new SQLiteDB(":memory:", { verbose: console.log })
-      this.dataSource = testDataSource
-      await this.dataSource.initialize()
-      console.log("Database connection established.")
+      this.sqliteDB = new SQLiteDB(':memory:', { verbose: console.log });
+      this.dataSource = testDataSource;
+      await this.dataSource.initialize();
     } catch (error) {
       if (error instanceof Error) {
-        console.error(error.stack)
       }
     }
   }
 
   async destroy() {
     try {
-      await this.dataSource.destroy()
-      this.sqliteDB.close()
+      await this.dataSource.destroy();
+      this.sqliteDB.close();
     } catch (error) {
       if (error instanceof Error) {
-        console.error(error.stack)
       }
     }
   }
