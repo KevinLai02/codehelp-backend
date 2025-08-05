@@ -1,4 +1,4 @@
-import type { IMemberModel } from '~/Member/types';
+import { type IMemberModel, LEVEL_OF_EXPERIENCE } from '~/Member/types';
 import {
   type IAvailableTime,
   type IMentorModel,
@@ -49,7 +49,7 @@ const MEMBER_DETAIL = {
   company: '123',
   phoneNumber: '0900000000',
   introduction: '123',
-  level: 0,
+  level: LEVEL_OF_EXPERIENCE.Senior,
   fieldOfWork: ['123'],
 };
 
