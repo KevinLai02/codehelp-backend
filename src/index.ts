@@ -16,7 +16,9 @@ import { WebRTCSocket } from './socket/WebRTCSocket';
 import userRouter from './User/user.router';
 
 export const createServer = async () => {
+  console.log('Connecting to database...');
   await dataSource.initialize();
+  console.log('Database connected');
   const app: Express = express();
   app.use(cors());
   app.use(bodyParser.json());
