@@ -10,50 +10,42 @@ import { addMember, findMemberBy, updateMember } from './member.model';
 export const save = async (
   data: IMemberRequestBody
 ): Promise<{ newMember: Member; token: string }> => {
-  try {
-    const { email, password, avatar } = data;
-    const isEmailExist = await findMemberBy({ email });
-    if (isEmailExist) {
-      throw new FeatureError(
-        403,
-        RESPONSE_CODE.DATA_DUPLICATE,
-        `Email: ${email} has been created`
-      );
-    }
-
-    const result = await uploadFiles([avatar[0]]);
-    const [avatarImageId] = result;
-
-    const encryptedPassword = await bcrypt.hash(password, 10);
-    const newMember = await addMember({
-      ...data,
-      avatar: parseImageUrl(avatarImageId),
-      password: encryptedPassword,
-    });
-
-    const token = generateToken(newMember);
-    delete newMember.password;
-
-    return { newMember, token };
-  } catch (error) {
-    throw error;
+  const { email, password, avatar } = data;
+  const isEmailExist = await findMemberBy({ email });
+  if (isEmailExist) {
+    throw new FeatureError(
+      403,
+      RESPONSE_CODE.DATA_DUPLICATE,
+      `Email: ${email} has been created`
+    );
   }
+
+  const result = await uploadFiles([avatar[0]]);
+  const [avatarImageId] = result;
+
+  const encryptedPassword = await bcrypt.hash(password, 10);
+  const newMember = await addMember({
+    ...data,
+    avatar: parseImageUrl(avatarImageId),
+    password: encryptedPassword,
+  });
+
+  const token = generateToken(newMember);
+  newMember.password = undefined;
+
+  return { newMember, token };
 };
 
 export const getMember = async (memberId: string) => {
-  try {
-    const member = await findMemberBy({ id: memberId });
-    if (!member) {
-      throw new FeatureError(
-        403,
-        RESPONSE_CODE.TARGET_NOT_EXISTS,
-        'Member not found.'
-      );
-    }
-    return member;
-  } catch (error) {
-    throw error;
+  const member = await findMemberBy({ id: memberId });
+  if (!member) {
+    throw new FeatureError(
+      403,
+      RESPONSE_CODE.TARGET_NOT_EXISTS,
+      'Member not found.'
+    );
   }
+  return member;
 };
 
 export const updateMemberInfo = async ({
@@ -63,11 +55,7 @@ export const updateMemberInfo = async ({
   userId: string;
   data: IMemberInfo;
 }) => {
-  try {
-    const res = await updateMember({ userId, data });
+  const res = await updateMember({ userId, data });
 
-    return res;
-  } catch (error) {
-    throw error;
-  }
+  return res;
 };

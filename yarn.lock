@@ -1906,6 +1906,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@prisma/client@npm:^6.13.0":
+  version: 6.13.0
+  resolution: "@prisma/client@npm:6.13.0"
+  peerDependencies:
+    prisma: "*"
+    typescript: ">=5.1.0"
+  peerDependenciesMeta:
+    prisma:
+      optional: true
+    typescript:
+      optional: true
+  checksum: 10c0/6d3d181aa91265bd6a331069b1d8358d83f02ffea788121d19f051a58e9957ae2df68e10e5e9e01b389fb942e4c7fa0de27af95deac216dfff7182bf5d7befc0
+  languageName: node
+  linkType: hard
+
 "@rollup/rollup-android-arm-eabi@npm:4.46.2":
   version: 4.46.2
   resolution: "@rollup/rollup-android-arm-eabi@npm:4.46.2"
@@ -2898,7 +2913,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/express-serve-static-core@npm:^5.0.0":
+"@types/express-serve-static-core@npm:^5.0.0, @types/express-serve-static-core@npm:^5.0.7":
   version: 5.0.7
   resolution: "@types/express-serve-static-core@npm:5.0.7"
   dependencies:
@@ -2910,7 +2925,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/express@npm:*":
+"@types/express@npm:*, @types/express@npm:^5.0.3":
   version: 5.0.3
   resolution: "@types/express@npm:5.0.3"
   dependencies:
@@ -2921,7 +2936,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/express@npm:^4.17.13, @types/express@npm:^4.17.21":
+"@types/express@npm:^4.17.13":
   version: 4.17.23
   resolution: "@types/express@npm:4.17.23"
   dependencies:
@@ -3036,12 +3051,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/multer@npm:^1.4.11":
-  version: 1.4.13
-  resolution: "@types/multer@npm:1.4.13"
+"@types/multer@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@types/multer@npm:2.0.0"
   dependencies:
     "@types/express": "npm:*"
-  checksum: 10c0/aed716fdc0bc8c5bfe6689bfe6569b6743b64be795140e80cab169bfe43f687027880b7fc401fca98f820dd464ad5986093ec322d865116eb31ce29a3361c469
+  checksum: 10c0/375b0e77c4675c2ff27d1170e469df48dced928cc9fcd077ead111a20d0f2c01921fd25e20e25426604d6d3e311b37da2bc03ce47523d06adafba5c4b8077b67
   languageName: node
   linkType: hard
 
@@ -5207,14 +5222,16 @@ __metadata:
     "@aws-sdk/client-s3": "npm:^3.658.1"
     "@aws-sdk/lib-storage": "npm:^3.658.1"
     "@biomejs/biome": "npm:2.1.2"
+    "@prisma/client": "npm:^6.13.0"
     "@types/bcrypt": "npm:^5.0.2"
     "@types/better-sqlite3": "npm:^7.6.11"
     "@types/eslint__js": "npm:^8.42.3"
-    "@types/express": "npm:^4.17.21"
+    "@types/express": "npm:^5.0.3"
+    "@types/express-serve-static-core": "npm:^5.0.7"
     "@types/iso-3166-1-alpha-2": "npm:^1.0.2"
     "@types/jest": "npm:^29.5.13"
     "@types/jsonwebtoken": "npm:^9.0.6"
-    "@types/multer": "npm:^1.4.11"
+    "@types/multer": "npm:^2.0.0"
     "@types/node": "npm:^22.0.2"
     "@types/pg": "npm:^8.11.6"
     "@types/supertest": "npm:^6.0.2"

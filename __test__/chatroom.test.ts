@@ -1,133 +1,132 @@
-import bodyParser from "body-parser"
-import express, { Express } from "express"
-import request from "supertest"
-import { RESPONSE_CODE } from "~/types"
-import { SQLite } from "./utils/sqlite.config"
-import chatroomRouter from "../src/Chatroom/chatroom.router"
-import bcrypt from "bcrypt"
-import { MEMBER, MENTOR_ONE, MENTOR_TWO } from "./utils/constant"
-import { addMember } from "../src/Member/member.model"
-import { Member } from "~/db/entities/Member"
-import { Mentor } from "~/db/entities/Mentor"
-import { generateToken } from "~/utils/account"
-import { add } from "~/Chatroom/chatroom.model"
-import { NOT_EXISTS_ID } from "./utils/constant"
-import { addOneMentor } from "./utils/addOneMentor"
-import { generateNotExistsToken } from "./utils/generateNotExistsToken"
+import bcrypt from 'bcrypt';
+import bodyParser from 'body-parser';
+import express, { type Express } from 'express';
+import request from 'supertest';
+import { add } from '~/Chatroom/chatroom.model';
+import type { Member } from '~/db/entities/Member';
+import type { Mentor } from '~/db/entities/Mentor';
+import { RESPONSE_CODE } from '~/types';
+import { generateToken } from '~/utils/account';
+import chatroomRouter from '../src/Chatroom/chatroom.router';
+import { addMember } from '../src/Member/member.model';
+import { addOneMentor } from './utils/addOneMentor';
+import {
+  MEMBER,
+  MENTOR_ONE,
+  MENTOR_TWO,
+  NOT_EXISTS_ID,
+} from './utils/constant';
+import { generateNotExistsToken } from './utils/generateNotExistsToken';
+import { SQLite } from './utils/sqlite.config';
 
-let server: Express
-const sqlite = new SQLite()
-let mentor: Mentor
-let mentorToken: string
-let member: Member
-let memberToken: string
-let chatroomId: string
+let server: Express;
+const sqlite = new SQLite();
+let mentor: Mentor;
+let mentorToken: string;
+let member: Member;
+let memberToken: string;
+let chatroomId: string;
 
 // For create the second chatroom.
-let secondChatroomId: string
+let secondChatroomId: string;
 // For testing when the user(mentor) is not in chatroom(second chatroom).
-const NOT_EXISTS_TOKEN = generateNotExistsToken()
+const NOT_EXISTS_TOKEN = generateNotExistsToken();
 beforeAll(async () => {
-  try {
-    await sqlite.setup()
-    server = express()
-    server.use(bodyParser.json())
-    server.use(
-      bodyParser.urlencoded({
-        extended: true,
-      }),
-    )
-    server.use("/chatroom", [chatroomRouter])
-
-    const { newMentorData: mentorOne } = await addOneMentor(MENTOR_ONE)
-    mentor = mentorOne
-    mentorToken = generateToken(mentorOne)
-
-    const encryptedMemberPassword = await bcrypt.hash(MEMBER.password, 10)
-    member = await addMember({
-      ...MEMBER,
-      password: encryptedMemberPassword,
+  await sqlite.setup();
+  server = express();
+  server.use(bodyParser.json());
+  server.use(
+    bodyParser.urlencoded({
+      extended: true,
     })
-    memberToken = generateToken(member)
+  );
+  server.use('/chatroom', [chatroomRouter]);
 
-    const { newMentorData: mentorTwo } = await addOneMentor(MENTOR_TWO)
+  const { newMentorData: mentorOne } = await addOneMentor(MENTOR_ONE);
+  mentor = mentorOne;
+  mentorToken = generateToken(mentorOne);
 
-    const chatroom = await add({
-      mentor: mentorTwo,
-      member: member,
-    })
-    secondChatroomId = chatroom.id!
-  } catch (error) {
-    console.log(error)
-    throw error
-  }
-})
+  const encryptedMemberPassword = await bcrypt.hash(MEMBER.password, 10);
+  member = await addMember({
+    ...MEMBER,
+    password: encryptedMemberPassword,
+  });
+  memberToken = generateToken(member);
+
+  const { newMentorData: mentorTwo } = await addOneMentor(MENTOR_TWO);
+
+  const chatroom = await add({
+    mentor: mentorTwo,
+    member,
+  });
+  secondChatroomId = chatroom.id!;
+});
 
 afterAll(() => {
-  sqlite.destroy()
-})
+  sqlite.destroy();
+});
 
-describe("Chatroom router POST: Create a chatroom", () => {
-  it("(o) Should return the chatroom id when the request is successful.", async () => {
+describe('Chatroom router POST: Create a chatroom', () => {
+  it('(o) Should return the chatroom id when the request is successful.', async () => {
     const res = await request(server)
-      .post("/chatroom/create")
+      .post('/chatroom/create')
       .send({
         mentorId: mentor.id,
       })
-      .set("Authorization", memberToken)
+      .set('Authorization', memberToken);
 
-    expect(res.status).toBe(200)
-    expect(res.body.chatroomId).toBeDefined()
-    expect(res.body.status).toBe("ok")
-    chatroomId = res.body.chatroomId
-  })
+    expect(res.status).toBe(200);
+    expect(res.body.chatroomId).toBeDefined();
+    expect(res.body.status).toBe('ok');
+    chatroomId = res.body.chatroomId;
+  });
 
-  it("(o) Should return the chatroom id when the users already have a chatroom.", async () => {
+  it('(o) Should return the chatroom id when the users already have a chatroom.', async () => {
     const res = await request(server)
-      .post("/chatroom/create")
+      .post('/chatroom/create')
       .send({
         mentorId: mentor.id,
       })
-      .set("Authorization", memberToken)
+      .set('Authorization', memberToken);
 
-    expect(res.status).toBe(200)
-    expect(res.body.chatroomId).toBeDefined()
-    expect(res.body.status).toBe("ok")
-  })
+    expect(res.status).toBe(200);
+    expect(res.body.chatroomId).toBeDefined();
+    expect(res.body.status).toBe('ok');
+  });
 
-  it("(x) Should return an error with response code 4002 when the mentor is not found.", async () => {
+  it('(x) Should return an error with response code 4002 when the mentor is not found.', async () => {
     const res = await request(server)
-      .post("/chatroom/create")
+      .post('/chatroom/create')
       .send({
         mentorId: NOT_EXISTS_ID,
       })
-      .set("Authorization", memberToken)
+      .set('Authorization', memberToken);
 
-    expect(res.status).toBe(401)
-    expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)
-  })
+    expect(res.status).toBe(401);
+    expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR);
+  });
 
-  it("(x) Should return an error with response code 4002 when the member is not found.", async () => {
+  it('(x) Should return an error with response code 4002 when the member is not found.', async () => {
     const res = await request(server)
-      .post("/chatroom/create")
+      .post('/chatroom/create')
       .send({
         mentorId: mentor.id,
       })
-      .set("Authorization", NOT_EXISTS_TOKEN)
+      .set('Authorization', NOT_EXISTS_TOKEN);
 
-    expect(res.status).toBe(401)
-    expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)
-  })
+    expect(res.status).toBe(401);
+    expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR);
+  });
 
-  it("(x) Should return an error with response code 4001 when the request body is missing the required data.", async () => {
+  it('(x) Should return an error with response code 4001 when the request body is missing the required data.', async () => {
     const res = await request(server)
-      .post("/chatroom/create")
-      .set("Authorization", memberToken)
+      .post('/chatroom/create')
+      .set('Authorization', memberToken);
 
-    expect(res.status).toBe(422)
-    expect(res.body.code).toBe(RESPONSE_CODE.VALIDATE_ERROR)
-  })
-})
+    expect(res.status).toBe(422);
+    expect(res.body.code).toBe(RESPONSE_CODE.VALIDATE_ERROR);
+  });
+});
 
 /*
  * [POST] Create a chatroom
@@ -143,55 +142,55 @@ describe("Chatroom router POST: Create a chatroom", () => {
  * (x) Should return an error with response code 4001 when the request body is missing the required data.
  */
 
-describe("Chatroom router GET: Chatroom info", () => {
-  it("(o) Should return the chatroom id and message record when the request is successful.", async () => {
+describe('Chatroom router GET: Chatroom info', () => {
+  it('(o) Should return the chatroom id and message record when the request is successful.', async () => {
     const res = await request(server)
       .get(`/chatroom/info/${chatroomId}`)
-      .set("Authorization", memberToken)
+      .set('Authorization', memberToken);
 
-    expect(res.status).toBe(200)
-    expect(res.body.chatroom.id).toBeDefined()
-    expect(res.body.chatroom.created_at).toBeDefined()
-    expect(res.body.chatroom.mentor).toBeDefined()
-    expect(res.body.chatroom.member).toBeDefined()
-    expect(res.body.chatroom.messages).toBeDefined()
-  })
+    expect(res.status).toBe(200);
+    expect(res.body.chatroom.id).toBeDefined();
+    expect(res.body.chatroom.created_at).toBeDefined();
+    expect(res.body.chatroom.mentor).toBeDefined();
+    expect(res.body.chatroom.member).toBeDefined();
+    expect(res.body.chatroom.messages).toBeDefined();
+  });
 
-  it("(x) Should return an error with response code 4002 when the user is not found.", async () => {
+  it('(x) Should return an error with response code 4002 when the user is not found.', async () => {
     const res = await request(server)
       .get(`/chatroom/info/${chatroomId}`)
-      .set("Authorization", NOT_EXISTS_TOKEN)
+      .set('Authorization', NOT_EXISTS_TOKEN);
 
-    expect(res.status).toBe(401)
-    expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)
-  })
+    expect(res.status).toBe(401);
+    expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR);
+  });
 
-  it("(x) Should return an error with response code 4004 when the chatroom is not found.", async () => {
+  it('(x) Should return an error with response code 4004 when the chatroom is not found.', async () => {
     const res = await request(server)
       .get(`/chatroom/info/${NOT_EXISTS_ID}`)
-      .set("Authorization", memberToken)
+      .set('Authorization', memberToken);
 
-    expect(res.status).toBe(403)
-    expect(res.body.code).toBe(RESPONSE_CODE.TARGET_NOT_EXISTS)
-  })
+    expect(res.status).toBe(403);
+    expect(res.body.code).toBe(RESPONSE_CODE.TARGET_NOT_EXISTS);
+  });
 
-  it("(x) Should return an error with response code 4004 when the user is not in this chatroom.", async () => {
+  it('(x) Should return an error with response code 4004 when the user is not in this chatroom.', async () => {
     const res = await request(server)
       .get(`/chatroom/info/${secondChatroomId}`)
-      .set("Authorization", mentorToken)
+      .set('Authorization', mentorToken);
 
-    expect(res.status).toBe(403)
-    expect(res.body.code).toBe(RESPONSE_CODE.TARGET_NOT_EXISTS)
-  })
+    expect(res.status).toBe(403);
+    expect(res.body.code).toBe(RESPONSE_CODE.TARGET_NOT_EXISTS);
+  });
 
   it("(x) Should return an error with response status 404 when query params 'chatroomId' is missing.", async () => {
     const res = await request(server)
-      .get(`/chatroom/info`)
-      .set("Authorization", mentorToken)
+      .get('/chatroom/info')
+      .set('Authorization', mentorToken);
 
-    expect(res.status).toBe(404)
-  })
-})
+    expect(res.status).toBe(404);
+  });
+});
 
 /*
  * [GET] Chatroom info
@@ -208,38 +207,38 @@ describe("Chatroom router GET: Chatroom info", () => {
  *
  */
 
-describe("Chatroom router GET: Chatroom list", () => {
-  it("(o) Should return the chatroom list when the request is successful.", async () => {
+describe('Chatroom router GET: Chatroom list', () => {
+  it('(o) Should return the chatroom list when the request is successful.', async () => {
     const res = await request(server)
-      .get("/chatroom/list")
+      .get('/chatroom/list')
       .query({ page: 1, count: 10 })
-      .set("Authorization", memberToken)
+      .set('Authorization', memberToken);
 
-    expect(res.status).toBe(200)
-    expect(res.body.chatroomList).toBeDefined()
-    expect(res.body.chatroomList.length).toBeLessThanOrEqual(10)
-    expect(res.body.total).toBeGreaterThanOrEqual(0)
-  })
+    expect(res.status).toBe(200);
+    expect(res.body.chatroomList).toBeDefined();
+    expect(res.body.chatroomList.length).toBeLessThanOrEqual(10);
+    expect(res.body.total).toBeGreaterThanOrEqual(0);
+  });
 
-  it("(x) Should return an error with response code 4002 when the user is not found.", async () => {
+  it('(x) Should return an error with response code 4002 when the user is not found.', async () => {
     const res = await request(server)
-      .get("/chatroom/list")
+      .get('/chatroom/list')
       .query({ page: 1, count: 10 })
-      .set("Authorization", NOT_EXISTS_TOKEN)
+      .set('Authorization', NOT_EXISTS_TOKEN);
 
-    expect(res.status).toBe(401)
-    expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)
-  })
+    expect(res.status).toBe(401);
+    expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR);
+  });
 
-  it("(x) Should return an error with response code 4001 when the pagination params is missing.", async () => {
+  it('(x) Should return an error with response code 4001 when the pagination params is missing.', async () => {
     const res = await request(server)
-      .get("/chatroom/list")
-      .set("Authorization", NOT_EXISTS_TOKEN)
+      .get('/chatroom/list')
+      .set('Authorization', NOT_EXISTS_TOKEN);
 
-    expect(res.status).toBe(422)
-    expect(res.body.code).toBe(RESPONSE_CODE.VALIDATE_ERROR)
-  })
-})
+    expect(res.status).toBe(422);
+    expect(res.body.code).toBe(RESPONSE_CODE.VALIDATE_ERROR);
+  });
+});
 
 /*
  * [GET] Chatroom list
@@ -252,61 +251,61 @@ describe("Chatroom router GET: Chatroom list", () => {
  *
  */
 
-describe("Chatroom router DELETE: Delete the chatroom", () => {
+describe('Chatroom router DELETE: Delete the chatroom', () => {
   it("(o) Should return the status with 'ok' when the request is successful.", async () => {
     const res = await request(server)
       .delete(`/chatroom/delete/${chatroomId}`)
-      .set("Authorization", memberToken)
+      .set('Authorization', memberToken);
 
-    expect(res.status).toBe(200)
-    expect(res.body.status).toBe("ok")
-    expect(res.body.message).toBe(`Chatroom ${chatroomId} is deleted`)
-  })
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe('ok');
+    expect(res.body.message).toBe(`Chatroom ${chatroomId} is deleted`);
+  });
 
-  it("(o) [GET] Should return an error with response code 4004 when the chatroom is not found after deletion.", async () => {
+  it('(o) [GET] Should return an error with response code 4004 when the chatroom is not found after deletion.', async () => {
     const res = await request(server)
       .get(`/chatroom/info/${chatroomId}`)
-      .set("Authorization", memberToken)
+      .set('Authorization', memberToken);
 
-    expect(res.status).toBe(403)
-    expect(res.body.code).toBe(RESPONSE_CODE.TARGET_NOT_EXISTS)
-  })
+    expect(res.status).toBe(403);
+    expect(res.body.code).toBe(RESPONSE_CODE.TARGET_NOT_EXISTS);
+  });
 
-  it("(x) Should return an error with response code 4002 when the user is not found.", async () => {
+  it('(x) Should return an error with response code 4002 when the user is not found.', async () => {
     const res = await request(server)
       .delete(`/chatroom/delete/${chatroomId}`)
-      .set("Authorization", NOT_EXISTS_TOKEN)
+      .set('Authorization', NOT_EXISTS_TOKEN);
 
-    expect(res.status).toBe(401)
-    expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR)
-  })
+    expect(res.status).toBe(401);
+    expect(res.body.code).toBe(RESPONSE_CODE.USER_DATA_ERROR);
+  });
 
-  it("(x) Should return an error with response code 4004 when the chatroom is not found.", async () => {
+  it('(x) Should return an error with response code 4004 when the chatroom is not found.', async () => {
     const res = await request(server)
       .delete(`/chatroom/delete/${NOT_EXISTS_ID}`)
-      .set("Authorization", memberToken)
+      .set('Authorization', memberToken);
 
-    expect(res.status).toBe(403)
-    expect(res.body.code).toBe(RESPONSE_CODE.TARGET_NOT_EXISTS)
-  })
+    expect(res.status).toBe(403);
+    expect(res.body.code).toBe(RESPONSE_CODE.TARGET_NOT_EXISTS);
+  });
 
-  it("(x) Should return an error with response code 4004 when the user is not in this chatroom.", async () => {
+  it('(x) Should return an error with response code 4004 when the user is not in this chatroom.', async () => {
     const res = await request(server)
       .delete(`/chatroom/delete/${secondChatroomId}`)
-      .set("Authorization", mentorToken)
+      .set('Authorization', mentorToken);
 
-    expect(res.status).toBe(403)
-    expect(res.body.code).toBe(RESPONSE_CODE.TARGET_NOT_EXISTS)
-  })
+    expect(res.status).toBe(403);
+    expect(res.body.code).toBe(RESPONSE_CODE.TARGET_NOT_EXISTS);
+  });
 
   it("(x) Should return an error with response status 404 when query params 'chatroomId' is missing.", async () => {
     const res = await request(server)
-      .delete(`/chatroom/delete`)
-      .set("Authorization", mentorToken)
+      .delete('/chatroom/delete')
+      .set('Authorization', mentorToken);
 
-    expect(res.status).toBe(404)
-  })
-})
+    expect(res.status).toBe(404);
+  });
+});
 
 /*
  * [DELETE] Chatroom list
